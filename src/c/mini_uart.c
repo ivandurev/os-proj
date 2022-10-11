@@ -62,9 +62,7 @@ char uart_getc() {
     return r == '\r' ? '\n' : r;
 }
 
-/**
- * Display a string
- */
+// Display a string
 void uart_puts(char *s) {
     while(*s) {
         /* convert newline to carriage return + newline */
@@ -72,4 +70,9 @@ void uart_puts(char *s) {
             uart_putc('\r');
         uart_putc(*s ++);
     }
+}
+
+// wrapper for printf
+void putc (void *p, char c) {
+    uart_putc(c);
 }

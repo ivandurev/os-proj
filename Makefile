@@ -4,16 +4,16 @@ SRC_DIR = src
 KERNEL_NAME = kernel8
 
 C_FILES = $(wildcard $(SRC_DIR)/c/*.c)
-ASM_FILES = $(wildcard $(SRC_DIR)/asm/*.s)
-O_FILES = $(ASM_FILES:$(SRC_DIR)/asm/%.s=$(BUILD_DIR)/%_asm.o) $(C_FILES:$(SRC_DIR)/c/%.c=$(BUILD_DIR)/%.o)
+ASM_FILES = $(wildcard $(SRC_DIR)/asm/*.S)
+O_FILES = $(ASM_FILES:$(SRC_DIR)/asm/%.S=$(BUILD_DIR)/%_asm.o) $(C_FILES:$(SRC_DIR)/c/%.c=$(BUILD_DIR)/%.o)
 
-GCC_FLAGS = -Wall -O2 -ffreestanding -nostdinc -nostdlib -nostartfiles -mgeneral-regs-only -Iinclude
-ASM_FLAGS = -Iinclude
+GCC_FLAGS = -Wall -O2 -ffreestanding -nostdlib -nostartfiles -Iinclude
+ASM_FLAGS = -Iinclude -D QEMU
 LD_FLAGS = -nostdlib
 
 all: clean kernel8.img
 
-$(BUILD_DIR)/%_asm.o: $(SRC_DIR)/asm/%.s
+$(BUILD_DIR)/%_asm.o: $(SRC_DIR)/asm/%.S
 	aarch64-none-elf-gcc $(ASM_FLAGS) -MMD -c $< -o $@
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/c/%.c
@@ -21,7 +21,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/c/%.c
 
 -include $(O_FILES:%.o=%.d)
 
-kernel8.img: $(O_FILES)
+kernel8.img: $(SRC_DIR)/linker.ld $(O_FILES)
 	aarch64-none-elf-ld $(O_FILES) -T $(SRC_DIR)/linker.ld -o $(BUILD_DIR)/kernel8.elf
 	aarch64-none-elf-objcopy -O binary $(BUILD_DIR)/$(KERNEL_NAME).elf $(KERNEL_NAME).img
 
