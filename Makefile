@@ -8,7 +8,7 @@ ASM_FILES = $(wildcard $(SRC_DIR)/asm/*.S)
 O_FILES = $(ASM_FILES:$(SRC_DIR)/asm/%.S=$(BUILD_DIR)/%_asm.o) $(C_FILES:$(SRC_DIR)/c/%.c=$(BUILD_DIR)/%.o)
 
 GCC_FLAGS = -Wall -O2 -ffreestanding -nostdlib -nostartfiles -Iinclude
-ASM_FLAGS = -Iinclude -D QEMU
+ASM_FLAGS = -Iinclude
 LD_FLAGS = -nostdlib
 
 all: clean kernel8.img

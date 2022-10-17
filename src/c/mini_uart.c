@@ -9,8 +9,8 @@ void uart_init()
     register unsigned int r;
 
     r = *GPFSEL1;
-    r &= ~((7<<11) | (7<<14)); // zero out the selector for pin 14 (bits 14-12) and pin 15 (bits 17-15)
-    r |= ((5<<11) | (5<<14)); // enter function 5 for miniuart
+    r &= ~((7<<12) | (7<<15)); // zero out the selector for pin 14 (bits 14-12) and pin 15 (bits 17-15)
+    r |= ((2<<12) | (2<<15)); // enter function 5 for miniuart
     *GPFSEL1 = r;
 
     // procedure for removing pull-up / down values of the pins
