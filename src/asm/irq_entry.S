@@ -1,15 +1,33 @@
 #include "irq/interrupts.h"
 
-.macro irq_generic_handler label
+.macro irq_entry label
 .align 7
-	irq_save_state
-	mov		x0, #\label
-	mrs		x1, esr_el1
-	mrs 	x2, elr_el1
-	bl	 	irq_handle
-	irq_restore_state
-	eret
+	b \label
 .endm
+
+.align	11
+.global irq_handlers
+irq_handlers:
+	irq_entry irq_sync_el1t	
+	irq_entry irq_irq_el1t	
+	irq_entry irq_fiq_el1t	
+	irq_entry irq_error_el1t	
+
+	irq_entry irq_sync_el1h	
+	irq_entry irq_irq_el1h	
+	irq_entry irq_fiq_el1h	
+	irq_entry irq_error_el1h
+
+	irq_entry irq_sync_el0_64
+	irq_entry irq_irq_el0_64
+	irq_entry irq_fiq_el0_64
+	irq_entry irq_error_el0_64
+
+	irq_entry irq_sync_el0_32
+	irq_entry irq_irq_el0_32
+	irq_entry irq_fiq_el0_32
+	irq_entry irq_error_el0_32
+
 
 .macro	irq_save_state
 	stp x0, x1, [sp, #-16]!
@@ -93,25 +111,60 @@
     ldp x0, x1, [sp, #16]!
 .endm
 
-.align	11
-.global irq_handlers
-irq_handlers:
-	irq_generic_handler		SYNC_EL1t	
-	irq_generic_handler		IRQ_EL1t
-	irq_generic_handler		FIQ_EL1t
-	irq_generic_handler		ERROR_EL1t
+.macro irq_generic_handler label
+	irq_save_state
+	mov		x0, #\label
+	mrs		x1, esr_el1
+	mrs 	x2, elr_el1
+	bl	 	irq_handle
+	irq_restore_state
+	eret
+.endm
 
-	irq_generic_handler		SYNC_EL1h
-	irq_generic_handler		IRQ_EL1h
-	irq_generic_handler		FIQ_EL1h
-	irq_generic_handler		ERROR_EL1h
+irq_sync_el1t:
+	irq_generic_handler SYNC_EL1t
 
-	irq_generic_handler		SYNC_EL0_64
-	irq_generic_handler		IRQ_EL0_64
-	irq_generic_handler		FIQ_EL0_64
-	irq_generic_handler		ERROR_EL0_64
+irq_irq_el1t:
+	irq_generic_handler IRQ_EL1t
 
-	irq_generic_handler		SYNC_EL0_32
-	irq_generic_handler		IRQ_EL0_32
-	irq_generic_handler		FIQ_EL0_32
-	irq_generic_handler		ERROR_EL0_32
+irq_fiq_el1t:
+	irq_generic_handler FIQ_EL1t
+
+irq_error_el1t:
+	irq_generic_handler ERROR_EL1t
+
+irq_sync_el1h:
+	irq_generic_handler SYNC_EL1h
+
+irq_irq_el1h:
+	irq_generic_handler IRQ_EL1h
+
+irq_fiq_el1h:
+	irq_generic_handler FIQ_EL1h
+
+irq_error_el1h:
+	irq_generic_handler ERROR_EL1h
+
+irq_sync_el0_64:
+	irq_generic_handler SYNC_EL0_64
+
+irq_irq_el0_64:
+	irq_generic_handler IRQ_EL0_64
+
+irq_fiq_el0_64:
+	irq_generic_handler FIQ_EL0_64
+
+irq_error_el0_64:
+	irq_generic_handler ERROR_EL0_64
+
+irq_sync_el0_32:
+	irq_generic_handler SYNC_EL0_32
+
+irq_irq_el0_32:
+	irq_generic_handler IRQ_EL0_32
+
+irq_fiq_el0_32:
+	irq_generic_handler FIQ_EL0_32
+
+irq_error_el0_32:
+	irq_generic_handler ERROR_EL0_32

@@ -28,12 +28,11 @@ const char *irq_errors[] = {
 
 
 void irq_handle(int interrupt, unsigned long esr, unsigned long elr) {
-	printf("Received interrupt lol %d: %s, ESR: %x, ELR: %x, %x\r\n", interrupt, irq_errors[interrupt], esr, elr, (int) (*IRQ_PENDING_BASIC));
-	if(interrupt != IRQ_EL1t) {
+	if(interrupt != IRQ_EL1h) {
 		printf("%d: %s, ESR: %x, ELR: %x\r\n", interrupt, irq_errors[interrupt], esr, elr);
 		return;
 	}
-	unsigned int source = (int) (*IRQ_PENDING_1);
+	unsigned int source = (unsigned int) (*IRQ_PENDING_1);
 	switch(source) {
 		case (IRQ_TIMER_1):
 			irq_timer_handle();
