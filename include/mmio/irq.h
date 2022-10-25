@@ -14,6 +14,7 @@
 #define IRQS_DISABLE_2		((volatile unsigned int*)(MMIO_BASE+0x0000B220))
 #define IRQS_DISABLE_BASIC	((volatile unsigned int*)(MMIO_BASE+0x0000B224))
 
-#define IRQ_TIMER_1 (1 << 1)
+#define IRQ_TIMER_1 	(1 << (1  - 0))
+#define IRQ_AUX     	(1 << (29 - 0))
 
 #endif  // _IO_IRQ_H

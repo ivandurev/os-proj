@@ -1,5 +1,6 @@
 #include "mmio/mini_uart.h"
 #include "mmio/gpio.h"
+#include "mmio/irq.h"
 
 /**
  * Set baud rate and characteristics (115200 8N1) and map to GPIO
@@ -75,4 +76,22 @@ void uart_puts(char *s) {
 // wrapper for printf
 void putc (void *p, char c) {
     uart_putc(c);
+}
+
+// this enables all AUX interrupts
+void uart_irq_enable() {
+    *AUX_MU_IER = 1;
+    *IRQS_ENABLE_1 = IRQ_AUX;
+}
+
+void uart_irq_handle() {
+    // check if its another AUX device
+    if((*(AUXIRQ) & 1) != 1) {
+        uart_puts("UNRECOGNISED AUX DATA\n\r");
+        return;
+    }
+
+    while(((*AUX_MU_IIR) & 4) == 4) {
+        uart_putc(uart_getc());
+    }
 }
