@@ -1,4 +1,4 @@
-#include "cpu/system_registers.h"
+#include "cpu_values/system_registers.h"
 
 .section ".text.boot"
 
