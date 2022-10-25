@@ -21,4 +21,6 @@
 #define FIQ_EL0_32		14 
 #define ERROR_EL0_32	15 
 
+#define STACK_ALLOC     256
+
 #endif // _IRQ_INTERRUPTS_H

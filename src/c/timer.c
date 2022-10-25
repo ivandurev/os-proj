@@ -2,7 +2,7 @@
 #include "mmio/irq.h"
 #include "mmio/timer.h"
 
-const unsigned int interval = 200000;
+const unsigned int interval = 600000;
 unsigned int curr = 0;
 
 void irq_timer_init() {
@@ -16,7 +16,6 @@ void irq_timer_enable() {
 }
 
 void irq_timer_handle() {
-	printf("Timer interrupt received\n\r");
 	curr += interval;
 	*TIMER_C1 = curr;
 	*TIMER_CS = TIMER_CS_M1;
