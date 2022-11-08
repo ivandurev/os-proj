@@ -78,6 +78,8 @@ void putc (void *p, char c) {
     uart_putc(c);
 }
 
+
+// NEEDS REWRITING USING FIFOs 
 // this enables all AUX interrupts
 void uart_irq_enable() {
     *AUX_MU_IER = 1;
@@ -90,7 +92,6 @@ void uart_irq_handle() {
         uart_puts("UNRECOGNISED AUX DATA\n\r");
         return;
     }
-
     while(((*AUX_MU_IIR) & 4) == 4) {
         uart_putc(uart_getc());
     }

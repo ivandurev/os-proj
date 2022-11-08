@@ -8,3 +8,8 @@ get_exception_level:
 get_stack_pointer_level:
 	mrs x0, spsel
 	ret
+
+.global get_pc
+get_pc:
+   adr x0, .
+   ret

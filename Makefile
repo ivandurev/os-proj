@@ -1,32 +1,38 @@
-BUILD_DIR = build
-SRC_DIR = src
-
+SRC_ROOT = src
+BUILD_ROOT = build
+FOLDERS = drivers irq kernel utils
 KERNEL_NAME = kernel8
 
-C_FILES = $(wildcard $(SRC_DIR)/c/*.c)
-ASM_FILES = $(wildcard $(SRC_DIR)/asm/*.S)
-O_FILES = $(ASM_FILES:$(SRC_DIR)/asm/%.S=$(BUILD_DIR)/%_asm.o) $(C_FILES:$(SRC_DIR)/c/%.c=$(BUILD_DIR)/%.o)
+
+C_FILES = $(foreach f,$(FOLDERS),$(wildcard $(SRC_ROOT)/$(f)/*.c))
+ASM_FILES = $(foreach f,$(FOLDERS),$(wildcard $(SRC_ROOT)/$(f)/*.S))
+O_FILES = $(C_FILES:$(SRC_ROOT)/%.c=$(BUILD_ROOT)/%.o) $(ASM_FILES:$(SRC_ROOT)/%.S=$(BUILD_ROOT)/%_asm.o)
 
 GCC_FLAGS = -Wall -O2 -ffreestanding -nostdlib -nostartfiles -Iinclude -mgeneral-regs-only # can possibly allow FP and SIMD in the future
 ASM_FLAGS = -Iinclude
 LD_FLAGS = -nostdlib
 
-all: clean boot/$(KERNEL_NAME).img
+all: clean folders boot/$(KERNEL_NAME).img
 
-$(BUILD_DIR)/%_asm.o: $(SRC_DIR)/asm/%.S
+folders:
+	$(foreach f,$(FOLDERS),$(shell mkdir $(BUILD_ROOT)\$(f) >nul 2>nul))
+
+$(BUILD_ROOT)/%_asm.o: $(SRC_ROOT)/%.S
 	aarch64-none-elf-gcc $(ASM_FLAGS) -MMD -c $< -o $@
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/c/%.c
+
+$(BUILD_ROOT)/%.o: $(SRC_ROOT)/%.c
 	aarch64-none-elf-gcc $(GCC_FLAGS) -MMD -c $< -o $@
 
 -include $(O_FILES:%.o=%.d)
 
-boot/$(KERNEL_NAME).img: $(SRC_DIR)/linker.ld $(O_FILES)
-	aarch64-none-elf-ld $(O_FILES) -T $(SRC_DIR)/linker.ld -o $(BUILD_DIR)/$(KERNEL_NAME).elf
-	aarch64-none-elf-objcopy -O binary $(BUILD_DIR)/$(KERNEL_NAME).elf boot/$(KERNEL_NAME).img
+boot/$(KERNEL_NAME).img: $(SRC_ROOT)/linker.ld $(O_FILES)
+	aarch64-none-elf-ld $(O_FILES) -T $(SRC_ROOT)/linker.ld -o $(BUILD_ROOT)/$(KERNEL_NAME).elf
+	aarch64-none-elf-objcopy -O binary $(BUILD_ROOT)/$(KERNEL_NAME).elf boot/$(KERNEL_NAME).img
 
 clean:
-	del /S /Q $(BUILD_DIR) "$(KERNEL_NAME).img"
+	rmdir /Q /s $(BUILD_ROOT) >nul 2>nul
+	del "boot\$(KERNEL_NAME).img" >nul 2>nul
 
 run:
 	qemu-system-aarch64 -M raspi3b -kernel boot/$(KERNEL_NAME).img -serial null -serial stdio
