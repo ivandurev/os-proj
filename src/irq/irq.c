@@ -1,3 +1,4 @@
+#include "irq/irq.h"
 #include "irq/interrupts.h"
 #include "drivers/timer.h"
 #include "drivers/mini_uart.h"
@@ -28,12 +29,12 @@ const char *irq_errors[] = {
 };
 
 
-void irq_handle(int interrupt, unsigned long esr, unsigned long elr) {
-	if(interrupt != IRQ_EL1h) {
+void irq_handle(uint8_t interrupt, uint64_t esr, uint64_t elr) {
+	if(interrupt != IRQ_EL1t) {
 		printf("%d: %s, ESR: %x, ELR: %x\r\n", interrupt, irq_errors[interrupt], esr, elr);
 		return;
 	}
-	unsigned int source = (unsigned int) (*IRQ_PENDING_1);
+	uint32_t source = (uint32_t) (*IRQ_PENDING_1);
 	while(source != 0) // handle all interrupts - maybe some occured together or weren't handled in time - will also support nesting
 	{
 		if(source & IRQ_TIMER_1)
@@ -42,6 +43,6 @@ void irq_handle(int interrupt, unsigned long esr, unsigned long elr) {
 			uart_irq_handle();
 		else
 			printf("Unknown IRQ source: %x, %s, ESR: %x, ELR: %x\r\n", source, irq_errors[interrupt], esr, elr);
-		source = (unsigned int) (*IRQ_PENDING_1);
+		source = (uint32_t) (*IRQ_PENDING_1);
 	}
 }

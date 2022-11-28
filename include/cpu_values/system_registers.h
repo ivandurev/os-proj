@@ -29,8 +29,13 @@
 
 // Saved Program Status Register Values
 #define SPSR_MASK_ALL 		(7 << 6)
-#define SPSR_M_EL2h			(9 << 0)
+
+#define SPSR_M_EL0t         (0 << 0)
+#define SPSR_M_EL1t         (4 << 0)
 #define SPSR_M_EL1h			(5 << 0)
-#define SPSR_VALUE			(SPSR_MASK_ALL | SPSR_M_EL1h)
+#define SPSR_M_EL2h			(9 << 0)
+
+#define SPSR_VALUE_NO_EL    (SPSR_MASK_ALL)
+#define SPSR_VALUE			(SPSR_MASK_ALL | SPSR_M_EL1t)
 
 #endif // _CPU_SYSTEM_REGISTERS_H

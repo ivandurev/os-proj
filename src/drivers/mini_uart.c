@@ -1,3 +1,4 @@
+#include "drivers/mini_uart.h"
 #include "mmio/mini_uart.h"
 #include "mmio/gpio.h"
 #include "mmio/irq.h"
@@ -7,7 +8,7 @@
  */
 void uart_init()
 {
-    register unsigned int r;
+    register uint32_t r;
 
     r = *GPFSEL1;
     r &= ~((7<<12) | (7<<15)); // zero out the selector for pin 14 (bits 14-12) and pin 15 (bits 17-15)

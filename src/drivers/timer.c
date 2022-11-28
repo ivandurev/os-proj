@@ -1,8 +1,12 @@
+#include "drivers/timer.h"
 #include "utils/printf.h"
+#include "utils/cpu_tools.h"
 #include "mmio/irq.h"
 #include "mmio/timer.h"
+#include "schedule/scheduler.h"
+#include "irq/irq.h"
 
-const unsigned int interval = 600000;
+const uint32_t interval = 100000;
 
 void timer_init()
 {
@@ -20,7 +24,9 @@ void timer_irq_enable()
 
 void timer_irq_handle()
 {
+	printf("Interrupt EL %d %d\n", get_exception_level(), get_stack_pointer_level());
+	tick(); // first find next process then reset the timer and return
+	
 	timer_init();
 	timer_clear();
-	printf("Timer interrupt handled\n\r");
 }

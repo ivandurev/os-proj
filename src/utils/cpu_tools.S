@@ -13,3 +13,8 @@ get_stack_pointer_level:
 get_pc:
    adr x0, .
    ret
+
+.global set_el_sp
+set_el_sp:
+	msr spsel, x0
+	ret

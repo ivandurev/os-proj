@@ -37,6 +37,10 @@ cpu_setup:
     adr x0, c_setup
     msr elr_el2, x0
 
+    // Set up EL1 stack - used by interrupts
+    ldr x0, =_start
+    msr sp_el1, x0
+
     // Drop to EL1
     eret 
 
@@ -44,7 +48,7 @@ cpu_setup:
 c_setup:
     // set up stack
     ldr x1, =_start // stack goes from start up (start is 0x80000)
-    mov sp, x1
+    mov sp, x1 // el0 stack - temporarily
 
     // set up global uninitialised variables for C (must be 0)
     ldr x1, =__bss_start

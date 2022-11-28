@@ -1,6 +1,6 @@
 SRC_ROOT = src
 BUILD_ROOT = build
-FOLDERS = drivers irq kernel utils
+FOLDERS = drivers irq kernel mem schedule utils
 KERNEL_NAME = kernel8
 
 
@@ -8,7 +8,7 @@ C_FILES = $(foreach f,$(FOLDERS),$(wildcard $(SRC_ROOT)/$(f)/*.c))
 ASM_FILES = $(foreach f,$(FOLDERS),$(wildcard $(SRC_ROOT)/$(f)/*.S))
 O_FILES = $(C_FILES:$(SRC_ROOT)/%.c=$(BUILD_ROOT)/%.o) $(ASM_FILES:$(SRC_ROOT)/%.S=$(BUILD_ROOT)/%_asm.o)
 
-GCC_FLAGS = -Wall -O2 -ffreestanding -nostdlib -nostartfiles -Iinclude -mgeneral-regs-only # can possibly allow FP and SIMD in the future
+GCC_FLAGS = -Wall -O2 -ffreestanding -nostdlib -nostartfiles -Iinclude -mgeneral-regs-only -include stdint.h -include stdbool.h	-include stddef.h # can possibly allow FP and SIMD in the future
 ASM_FLAGS = -Iinclude
 LD_FLAGS = -nostdlib
 
