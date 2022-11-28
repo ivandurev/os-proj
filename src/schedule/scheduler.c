@@ -1,7 +1,7 @@
 #include "schedule/scheduler.h"
 #include "schedule/task.h"
 #include "mem/mem.h"
-//#include "utils/printf.h"
+#include "utils/printf.h"
 
 struct task *tasks[100]; // all tasks
 uint8_t tasks_len = 0;

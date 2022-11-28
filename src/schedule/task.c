@@ -43,6 +43,16 @@ struct task* idle_task() // creates the idle task
 	return _idle;
 }
 
+void drop_to_user(struct task *t)
+{
+	t -> cpu_context.el = SPSR_M_EL0t;
+}
+
+void set_priority(struct task *t, uint8_t to)
+{
+	t -> priority = to;
+}
+
 struct task* copy(struct task *t, void *to, uint32_t argc, uint64_t *argv)
 {
 	preempt_disable(t);

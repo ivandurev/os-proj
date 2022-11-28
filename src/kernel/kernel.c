@@ -13,20 +13,18 @@
 
 void func1()
 {
-    for(int i = 0; i < 1000; i ++)
+    while(1)
     {
-        printf("340958349843\n");
+        printf("EL: %d\n", get_exception_level());
     }
 }
 void func2()
 {
-    printf("lololol\n");
-    return;
+    while(1)
+    {
+        printf("\t\t\tuser\n");
+    }
 }
-
-
-
-extern uint64_t irq_handlers;
 
 void kernel_main()
 {
@@ -47,12 +45,13 @@ void kernel_main()
 
     if(idle && _func1 && _func2)
     {
-        _func1 -> priority = 1;
-        _func2 -> priority = 1;
-        init_task(NULL);
-        queue_task(_func1);
-        queue_task(_func2);
-        queue_task(idle);
+       set_priority(_func1, 1);
+       set_priority(_func2, 1);
+       drop_to_user(_func2);
+       init_task(NULL); // it is fine to overwrite the first few bytes - it will only be done once 
+       queue_task(idle);
+       queue_task(_func1);
+       queue_task(_func2);
     }
     else
         printf("Error while initialising init task!\n");

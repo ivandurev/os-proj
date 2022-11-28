@@ -30,7 +30,7 @@ const char *irq_errors[] = {
 
 
 void irq_handle(uint8_t interrupt, uint64_t esr, uint64_t elr) {
-	if(interrupt != IRQ_EL1t) {
+	if(interrupt != IRQ_EL1t && interrupt != IRQ_EL0_64) {
 		printf("%d: %s, ESR: %x, ELR: %x\r\n", interrupt, irq_errors[interrupt], esr, elr);
 		return;
 	}
