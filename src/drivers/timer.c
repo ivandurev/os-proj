@@ -6,7 +6,7 @@
 #include "schedule/scheduler.h"
 #include "irq/irq.h"
 
-const uint32_t interval = 100000;
+const uint32_t interval = 10000;
 
 void timer_init()
 {
@@ -24,7 +24,7 @@ void timer_irq_enable()
 
 void timer_irq_handle()
 {
-	printf("Interrupt EL %d %d\n", get_exception_level(), get_stack_pointer_level());
+	printf("Interrupt EL %d %d\n\r", get_exception_level(), get_stack_pointer_level());
 	tick(); // first find next process then reset the timer and return
 	
 	timer_init();

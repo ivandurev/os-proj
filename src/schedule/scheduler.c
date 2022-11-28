@@ -11,6 +11,8 @@ void init_task(struct task *t) // must be done before any scheduling happens
 {
 	// does not even consider that for scheduling ever again - just placeholder
 	curr = t;
+	curr -> preempt_block = 0;
+	curr -> priority = 0;
 }
 
 void schedule()

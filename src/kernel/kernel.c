@@ -15,14 +15,14 @@ void func1()
 {
     while(1)
     {
-        printf("EL: %d\n", get_exception_level());
+        printf("EL: %d\n\r", get_exception_level());
     }
 }
 void func2()
 {
     while(1)
     {
-        printf("\t\t\tuser\n");
+        printf("\t\t\tuser\n\r");
     }
 }
 
