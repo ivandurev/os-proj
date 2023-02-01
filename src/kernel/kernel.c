@@ -61,7 +61,7 @@ void kernel_main()
 
     irq_init();
     printf("irq enabling\n");
-    irq_enable();
+    irq_enable(); // end of code in this function - now everything is managed through the scheduler
     
     // NO STACK AFTER THIS POINT SINCE IT IS NOW USED BY INTERRUPTS
     // TO CONTINUE USING THE KERNEL ADD AN INIT TASK TO THE QUEUE
