@@ -1,6 +1,6 @@
 SECTIONS
 {
-    . = 0x80000;     /* Kernel load address for AArch64 */
+    . = 0xffff000000080000;     /* base address for MMU virtual memory kernel space */ 
     .text :
     {
         KEEP(*(.text.boot))
@@ -22,6 +22,12 @@ SECTIONS
         *(.bss .bss.*)
         *(COMMON)
         __bss_end = .;
+    }
+    . = ALIGN(4096); /* pages are 4kb aligned */
+    __pages_start = .;
+    .data.pages :
+    { 
+        . += (3 * (1 << 12));
     }
     _end = .;
 

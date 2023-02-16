@@ -55,7 +55,7 @@ void schedule()
 		struct task *old = curr;
 		curr = tasks[next];
 		if(old -> state == DONE)
-			page_free(old -> stack_end);
+			mfree(old -> stack_end);
 		else
 			preempt_enable(old);
 	}

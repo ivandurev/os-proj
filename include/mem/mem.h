@@ -1,14 +1,9 @@
 #ifndef _M_MEM_H
 #define _M_MEM_H
 
-#define PAGES_LEN 1000
-#define PAGE_SIZE (1 << 12) // 4 KiB
+uint64_t malloc();
+void mfree(uint64_t addr);
 
-//#define INIT_MEM 262144 // 256 KiB
-
-extern uint8_t _end;
-
-uint64_t page_alloc();
-void page_free(uint64_t addr);
+extern void mzero(uint64_t start, uint32_t size);
 
 #endif // _M_MEM_H

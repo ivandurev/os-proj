@@ -1,6 +1,8 @@
 #ifndef _MMIO_BASE_H
 #define _MMIO_BASE_H
 
-#define MMIO_BASE 0x3F000000
+#include "mem/mem_values.h"
+
+#define MMIO_BASE KERNEL_MEMORY_BASE + DEVICE_OFFSET // virtual address
 
 #endif // _MMIO_BASE_H

@@ -1,4 +1,5 @@
 #include "schedule/task.h"
+#include "mem/mem_values.h"
 #include "mem/mem.h"
 #include "irq/interrupts.h"
 #include "cpu_values/system_registers.h"
@@ -24,7 +25,7 @@ void idle()
 struct task* idle_task() // creates the idle task
 {
 	struct task *_idle;
-	_idle = (struct task*) page_alloc();
+	_idle = (struct task*) malloc();
 	if(!_idle)
 		return NULL;
 	_idle = (struct task *) ((uint64_t) _idle + mid);
@@ -58,7 +59,7 @@ struct task* copy(struct task *t, void *to, uint32_t argc, uint64_t *argv)
 	preempt_disable(t);
 
 	struct task *child;
-	child = (struct task*) page_alloc();
+	child = (struct task*) malloc();
 	if(!child || !t || !to)
 		return NULL;
 	child = (struct task *) ((uint64_t) child + mid); // leave space for the stack

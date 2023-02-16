@@ -37,7 +37,7 @@ void kernel_main()
     int sp = get_stack_pointer_level();
 
     printf("Exception level %d %d\n", el, sp);
-
+    while(1) {} // remove when user programs outside kernel space are created and fs implemented with syscalls for malloc
     // initialise further tasks to switch to - derived from the idle task
     struct task *idle = idle_task();
     struct task *_func1 = copy(idle, func1, 0, NULL);
