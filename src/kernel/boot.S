@@ -14,10 +14,12 @@ _start:
 
 // stop every non-main core
 halt:
-    b   halt
+    wfe
+    b halt
 
 // various CPU settings
 cpu_setup:
+
     // System Control Register 
     ldr x0, =SCTLR_VALUE_MMU_DISABLED
     msr sctlr_el1, x0
@@ -40,7 +42,8 @@ cpu_setup:
     msr elr_el2, x0
 
     // Set up EL1 stack - used by interrupts
-    ldr x0, =_start
+    ldr x0, =KERNEL_MEMORY_BASE
+    add x0, x0, #KERNEL_STACK_SIZE
     msr sp_el1, x0
 
     // Drop to EL1
@@ -57,28 +60,32 @@ c_setup:
     ldr w1, =__bss_size
     cbz w1, mmu_setup
     ldr x0, =__bss_start
+    and x0, x0, #0xffffffffffff // make sure addresses are physical as MMU is disabled
     bl mzero
 
 // set up kernel virtual memory space - starting at 0xffff000000000000
 mmu_setup:
     // zero out the page area - making any unmapped addresses invalid
-    ldr x0, =__pages_start
+    ldr x5, =__pages_start
+    and x5, x5, #0xfffffffff000 // get only address bits for page descriptor - 47:12
+
+    mov x0, x5
     ldr w1, =PAGES_TOTAL_SIZE
     bl mzero
 
-    ldr x2, =PAGE_SIZE // 4KB step for going between pages
     // PGD table (level 0) is just one and has just one entry pointer to a signle PUD (level 1)
-    ldr x0, =__pages_start
-    add x1, x0, #PAGE_SIZE // placing the single PUD right after the PGD
-    orr x1, x1, #PGD_DESCRIPTOR_VALID_TABLE // flags for valid table pointer
-    str x1, [x0]  // storing the descriptor at the first entry (0) in PGD
-    add x1, x1, x2
+    mov x0, x5
+    mov x1, x5
+    add x1, x1, #PAGE_SIZE // placing the single PUD right after the PGD
+    orr x2, x1, #PGD_DESCRIPTOR_VALID_TABLE // flags for valid table pointer
+    str x2, [x0]  // storing the descriptor at the first entry (0) in PGD
+    add x0, x0, #PAGE_SIZE
 
     // PUD table (level 1) is just one and has one entry pointer to a single PMD (level 2)
-    add x1, x0, #PAGE_SIZE
-    orr x1, x1, #PUD_DESCRIPTOR_VALID_TABLE
-    str x1, [x0]
-    add x1, x1, x2
+    add x1, x1, #PAGE_SIZE
+    orr x2, x1, #PUD_DESCRIPTOR_VALID_TABLE
+    str x2, [x0]
+    add x0, x0, #PAGE_SIZE
 
     // PMD table (level 2) is just one but has all 512 entries - each pointing to a 2MB section
     // covers exactly raspi 1gb ram
@@ -108,10 +115,6 @@ mmu_setup:
         cmp x1, x3
         blo pmd_device_setup
 
-    // set up kernel PGD address
-    ldr x0, =__pages_start       
-    msr ttbr1_el1, x0
-
     // set up tcr flags
     ldr x0, =TCR_EL1_VALUE      
     msr tcr_el1, x0
@@ -120,12 +123,20 @@ mmu_setup:
     ldr x0, =MAIR_EL1_VALUE
     msr mair_el1, x0
 
+    // set up kernel PGD address=
+    msr ttbr1_el1, x5
+    msr ttbr0_el1, x5 // necessary because the PC needs to be updated
+
     // load the address of the c function before enabling mmu
-    ldr x1, =kernel_main
+    ldr x6, =kernel_main
+
+    // invalidate caches and synchronise
+    // tlbi alle1
+    // dsb sy
 
     // enable MMU
-    ldr x0, =SCTLR_VALUE             
+    mrs x0, sctlr_el1
+    orr x0, x0, #SCTLR_MMU_ENABLED    
     msr sctlr_el1, x0
-
-    // start C program
-    br  x1
+    
+    br x6

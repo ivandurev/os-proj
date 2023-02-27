@@ -9,7 +9,7 @@ ASM_FILES = $(foreach f,$(FOLDERS),$(wildcard $(SRC_ROOT)/$(f)/*.S))
 O_FILES = $(C_FILES:$(SRC_ROOT)/%.c=$(BUILD_ROOT)/%.o) $(ASM_FILES:$(SRC_ROOT)/%.S=$(BUILD_ROOT)/%_asm.o)
 
 GCC_FLAGS = -Wall -O2 -ffreestanding -nostdlib -nostartfiles -Iinclude -mgeneral-regs-only -include stdint.h -include stdbool.h	-include stddef.h # can possibly allow FP and SIMD in the future
-ASM_FLAGS = -Iinclude
+ASM_FLAGS = -Iinclude -DDEBUG
 LD_FLAGS = -nostdlib
 
 all: clean folders boot/$(KERNEL_NAME).img
@@ -36,3 +36,5 @@ clean:
 
 run:
 	qemu-system-aarch64 -M raspi3b -kernel boot/$(KERNEL_NAME).img -serial null -serial stdio
+debug:
+	qemu-system-aarch64 -M raspi3b -d in_asm -kernel boot/$(KERNEL_NAME).img -serial null -serial stdio -monitor stdio -S -nographic

@@ -2,7 +2,7 @@
 #define _M_MEM_VALUES_H
 
 #define PAGE_SIZE (1 << 12) // each page is 4KB
-#define PAGES_TOTAL_SIZE 3 * (1 << 12) // we have one PGD, PUD and one PMD
+#define PAGES_TOTAL_SIZE (3 * (1 << 12)) // we have one PGD, PUD and one PMD
 
 #define KERNEL_MEMORY_BASE 0xFFFF000000000000 // virtual kernel space start
 #define KERNEL_STACK_SIZE 0x80000

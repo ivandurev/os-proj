@@ -26,18 +26,32 @@ void func2()
     }
 }
 
+// void temporary()
+// {
+//     uart_init();
+//     uart_irq_enable();
+//     init_printf(0, putc);
+//     printf("Init.\n");
+// }
+// void temporary_print(uint64_t value)
+// {
+//     printf("Value: %x\n", value);
+// }
+
 void kernel_main()
 {
+    __asm__("msr ttbr0_el1, xzr"); // reset this now that PC is updated - will be used by user processes
     uart_init();
     uart_irq_enable();
 
     init_printf(0, putc);
+    printf("Booted to C and uart configured!\n");
 
     int el = get_exception_level();
     int sp = get_stack_pointer_level();
 
     printf("Exception level %d %d\n", el, sp);
-    while(1) {} // remove when user programs outside kernel space are created and fs implemented with syscalls for malloc
+        
     // initialise further tasks to switch to - derived from the idle task
     struct task *idle = idle_task();
     struct task *_func1 = copy(idle, func1, 0, NULL);

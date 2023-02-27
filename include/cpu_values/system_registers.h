@@ -10,12 +10,12 @@
 #define SCTLR_MMU_ENABLED               (1 << 0)
 
 #define SCTLR_VALUE_MMU_DISABLED	(SCTLR_RESERVED | SCTLR_EE_LITTLE_ENDIAN | SCTLR_I_CACHE_DISABLED | SCTLR_C_CACHE_DISABLED | SCTLR_MMU_DISABLED)
-#define SCTLR_VALUE                 (SCTLR_RESERVED | SCTLR_EE_LITTLE_ENDIAN | SCTLR_I_CACHE_DISABLED | SCTLR_C_CACHE_DISABLED | SCTLR_MMU_ENABLED)
 
 // Architectural Feature Access Control Register VALUES
-#define CPACR_FPEN_SIMD_ENABLED         (1 << 20) // enable SVE, floating-point and SIMD at EL1 - used by gcc
+#define CPACR_FPEN_SIMD_ENABLED         (1 << 21) | (1 << 20) // enable SVE, floating-point and SIMD at EL1 - used by gcc
+#define CPACR_SVE_ENABLED               (1 << 17) | (1 << 16)
 
-#define CPACR_VALUE CPACR_FPEN_SIMD_ENABLED
+#define CPACR_VALUE (CPACR_FPEN_SIMD_ENABLED | CPACR_SVE_ENABLED)
 
 // Hypervisor Configuraion Register Values
 #define HCR_RW_AARCH64	    (1 << 31)
