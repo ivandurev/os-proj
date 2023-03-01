@@ -32,6 +32,7 @@ struct cpu_context
 	uint64_t pc; // which is essentially elr
 	uint64_t sp; // the SP of the process - in EL0
 	uint8_t el; // EL to return to
+	uint64_t pgd; // address of root VA table
 };
 
 struct task

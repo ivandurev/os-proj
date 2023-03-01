@@ -3,6 +3,7 @@
 
 #include "schedule/task.h"
 
+
 void schedule();
 void tick();
 
@@ -13,5 +14,7 @@ void switch_to(struct task *to);
 
 void on_return();
 struct task* fork(void *to, uint32_t argc, uint64_t *argv);
+
+struct task* get_current_task();
 
 #endif // _SCHED_SCHEDULER_H

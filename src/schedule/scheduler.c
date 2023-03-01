@@ -7,6 +7,11 @@ struct task *tasks[100]; // all tasks
 uint8_t tasks_len = 0;
 struct task *curr = NULL; // current running task
 
+struct task* get_current_task()
+{
+	return curr;
+}
+
 void init_task(struct task *t) // must be done before any scheduling happens
 {
 	// does not even consider that for scheduling ever again - just placeholder
@@ -55,7 +60,7 @@ void schedule()
 		struct task *old = curr;
 		curr = tasks[next];
 		if(old -> state == DONE)
-			mfree(old -> stack_end);
+			;//mfree(old -> stack_end);
 		else
 			preempt_enable(old);
 	}

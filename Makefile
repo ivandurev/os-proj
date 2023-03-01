@@ -1,6 +1,6 @@
 SRC_ROOT = src
 BUILD_ROOT = build
-FOLDERS = drivers irq kernel mem schedule utils
+FOLDERS = drivers irq kernel mem schedule user utils
 KERNEL_NAME = kernel8
 
 

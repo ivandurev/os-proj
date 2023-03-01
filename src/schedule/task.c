@@ -19,13 +19,13 @@ void preempt_disable(struct task *t)
 
 void idle()
 {
-	while(1) {printf("idle\n");}
+	while(1) {__printf("idle\n");}
 }
 
 struct task* idle_task() // creates the idle task
 {
 	struct task *_idle;
-	_idle = (struct task*) malloc();
+	_idle = NULL;//(struct task*) malloc();
 	if(!_idle)
 		return NULL;
 	_idle = (struct task *) ((uint64_t) _idle + mid);
@@ -59,7 +59,7 @@ struct task* copy(struct task *t, void *to, uint32_t argc, uint64_t *argv)
 	preempt_disable(t);
 
 	struct task *child;
-	child = (struct task*) malloc();
+	child = NULL;//(struct task*) malloc();
 	if(!child || !t || !to)
 		return NULL;
 	child = (struct task *) ((uint64_t) child + mid); // leave space for the stack
