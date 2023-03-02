@@ -86,11 +86,17 @@ void switch_to(struct task *to)
 
 	uint64_t volatile register tosp = to -> cpu_context.sp;
 	uint64_t volatile register topc = to -> cpu_context.pc;
-	uint64_t volatile register toel = to -> cpu_context.el;;
+	uint64_t volatile register toel = to -> cpu_context.el;
+	uint64_t volatile register topgd = to -> cpu_context.pgd;
 	
 	__asm__("msr sp_el0, %0" : : "r" (tosp));
 	__asm__("msr elr_el1, %0" : : "r" (topc));
 	__asm__("msr spsr_el1, %0" : : "r" (toel));
+
+	__asm__("msr ttbr0_el1, %0" : : "r" (topgd));
+	__asm__("tlbi vmalle1is");
+  	__asm__("dsb ish");
+	__asm__("isb");
 }
 
 void on_return()
