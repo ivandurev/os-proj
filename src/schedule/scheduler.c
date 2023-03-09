@@ -14,10 +14,8 @@ struct task* get_current_task()
 
 void init_task(struct task *t) // must be done before any scheduling happens
 {
-	// does not even consider that for scheduling ever again - just placeholder
 	curr = t;
-	curr -> preempt_block = 0;
-	curr -> priority = 0;
+	queue_task(t);
 }
 
 void schedule()
@@ -35,6 +33,7 @@ void schedule()
 			if(tasks[i] == curr)
 			{
 				found = true;
+				free_task(curr);
 			}
 			if(found)
 				tasks[i] = tasks[i+1];
@@ -60,7 +59,7 @@ void schedule()
 		struct task *old = curr;
 		curr = tasks[next];
 		if(old -> state == DONE)
-			;//mfree(old -> stack_end);
+			free_task(old);
 		else
 			preempt_enable(old);
 	}

@@ -6,6 +6,17 @@ SECTIONS
         KEEP(*(.text.boot))
         *(.text .text.* .gnu.linkonce.t*)
     }
+    . = ALIGN(8);
+    PROC_DEF_BEGIN = .;
+    .text.user :
+    {
+        build/user* (.text)
+    }
+    .rodata.user : { build/user* (.rodata) }
+    .data.user : { build/user* (.data) }
+    .bss.user : { build/user* (.bss) }
+    PROC_DEF_END = .;
+    
     .rodata :
     {
         *(.rodata .rodata.* .gnu.linkonce.r*)

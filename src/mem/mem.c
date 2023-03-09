@@ -76,30 +76,37 @@ uint64_t read_pa(uint64_t *pgd_addr, uint64_t va)
 	uint64_t *pmd_addr = (uint64_t *) ((*pud_addr) & DESCRIPTOR_ADDR_BITMASK);
 
 	uint64_t entry = (va & VA_PMD_BITMASK) >> VA_PMD_SHIFT;
-	uint64_t pa = (*(pmd_addr + entry)) & DESCRIPTOR_ADDR_BITMASK;
+	// account that each entry takes 8 bytes
+	uint64_t pa = (*(pmd_addr + (entry << 3))) & DESCRIPTOR_ADDR_BITMASK;
 
-	return pa;
+	return pa | DESCRIPTOR_KERNEL_BITMASK;
 }
 
 uint64_t allocate_pages()
 {
 	// storing the pages for the new memory space
-	pgd_addr 			= (uint64_t *) allocate_physical_page();
+	uint64_t *pgd_addr 	= (uint64_t *) allocate_physical_page();
 	uint64_t *pud_addr 	= (uint64_t *) allocate_physical_page();
 	uint64_t *pmd_addr 	= (uint64_t *) allocate_physical_page();
 	if(!pgd_addr || !pud_addr || !pmd_addr)
 		return false;
 
-	uint64_t va = allocate_physical_section() ^ DESCRIPTOR_KERNEL_BITMASK; // the actual section being allocated
-	*pgd_addr = (pud_addr ^ DESCRIPTOR_KERNEL_BITMASK) | PGD_DESCRIPTOR_VALID_TABLE;
-	*pud_addr = (pmd_addr ^ DESCRIPTOR_KERNEL_BITMASK) | PUD_DESCRIPTOR_VALID_TABLE;
+	*pgd_addr = ((uint64_t) pud_addr ^ DESCRIPTOR_KERNEL_BITMASK) | PGD_DESCRIPTOR_VALID_TABLE;
+	*pud_addr = ((uint64_t) pmd_addr ^ DESCRIPTOR_KERNEL_BITMASK) | PUD_DESCRIPTOR_VALID_TABLE;
 	return (uint64_t) pgd_addr;	
 }
 
-uint64_t free_pages(uint64_t *pgd_addr)
+bool free_pages(uint64_t *pgd_addr)
 {
 	uint64_t *pud_addr = (uint64_t *) ((*pgd_addr) & DESCRIPTOR_ADDR_BITMASK);
 	uint64_t *pmd_addr = (uint64_t *) ((*pud_addr) & DESCRIPTOR_ADDR_BITMASK);
+
+	for(int i = 0; i < PAGE_SIZE; i += 8)
+	{
+		if(*(pmd_addr + i) & DESCRIPTOR_VALID_BITMASK)
+			if(!free_section(pgd_addr, (i >> 3) << VA_PMD_SHIFT))
+				return false;
+	}
 
 	if(!free_physical_page((uint64_t) pmd_addr))
 		return false;
@@ -130,7 +137,7 @@ uint64_t allocate_section(uint64_t *pgd_addr)
 		descriptor |= PMD_DESCRIPTOR_VALID_BLOCK_NORMAL;
 		*(pmd_addr + i) = descriptor;
 
-		return i << VA_PMD_SHIFT;
+		return (i >> 3) << VA_PMD_SHIFT;
 	}
 	return false;
 }
@@ -138,11 +145,20 @@ uint64_t allocate_section(uint64_t *pgd_addr)
 bool free_section(uint64_t *pgd_addr, uint64_t va)
 {
 	uint64_t pa = read_pa(pgd_addr, va);
-	pa |= DESCRIPTOR_KERNEL_BITMASK;
 
 	bool res = free_physical_section(pa);
 	if(!res) return false;
 
-	*(pmd_addr + entry) = 0;
+	*((uint64_t *) pa) = 0;
 	return true;
+}
+
+void mcopy(uint64_t *from_addr, uint32_t size, uint64_t *to_addr)
+{
+	for(; size > 0; size --)
+	{
+		*to_addr = *from_addr;
+		to_addr += 8; // copy 64 bits each time
+		from_addr += 8;
+	}
 }

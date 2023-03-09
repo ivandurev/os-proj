@@ -12,21 +12,22 @@
 #include "schedule/scheduler.h"
 
 #include "user/syscall.h"
+#include "user/base.h"
 
-void func1()
-{
-    while(1)
-    {
-        __printf("EL: %d\n\r", get_exception_level());
-    }
-}
-void func2()
-{
-    while(1)
-    {
-        __printf("\t\t\tuser\n\r");
-    }
-}
+// void func1()
+// {
+//     while(1)
+//     {
+//         __printf("EL: %d\n\r", get_exception_level());
+//     }
+// }
+// void func2()
+// {
+//     while(1)
+//     {
+//         __printf("\t\t\tuser\n\r");
+//     }
+// }
 
 // void temporary()
 // {
@@ -83,8 +84,21 @@ void kernel_main()
     irq_enable(); // end of code in this function - now everything is managed through the scheduler
     __printf("Interrupts enabled\n");
 
-    printf("hello\n");
-    __printf("test done\n");
+    printf("System calls working\n");
+
+    __printf("%x %x", &PROC_DEF_BEGIN, &PROC_DEF_END);
+    struct task *idle_task = new_task(&idle, 0, NULL);
+    struct task *first_task = new_task(&first_func, 0, NULL);
+    if(!first_task && !idle_task)
+        __printf("ERROR WHEN INITIALISING TASK\n");
+    else
+    {
+        init_task(idle_task);
+        queue_task(first_task);
+    }
+    timer_init();
+    timer_irq_enable();
+
     // NO STACK AFTER THIS POINT SINCE IT IS NOW USED BY INTERRUPTS
     // TO CONTINUE USING THE KERNEL ADD AN INIT TASK TO THE QUEUE
     while(1)

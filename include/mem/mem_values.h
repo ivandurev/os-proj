@@ -8,6 +8,8 @@
 
 #define SECTION_SIZE (1 << 21)
 
+#define PROC_STACK_SIZE 0x8000 // default stack size for user processes - 32KB
+
 #define KERNEL_MEMORY_BASE 0xffff000000000000 // virtual kernel space start
 #define KERNEL_STACK_SIZE 0x80000
 #define DEVICE_OFFSET 0x3f000000 // mmio offset
