@@ -2,6 +2,7 @@
 #define _USER_BASE_H
 
 void idle();
+void on_return();
 void first_func();
 
 #endif // _USER_BASE_H

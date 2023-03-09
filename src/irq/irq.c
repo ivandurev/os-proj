@@ -31,7 +31,6 @@ const char *irq_errors[] = {
 	"ERROR_INVALID_EL0_32"	
 };
 
-
 void irq_handle(uint8_t interrupt, uint64_t esr, uint64_t elr, uint64_t sp) {
 	if(interrupt != IRQ_EL1t &&
 	   interrupt != IRQ_EL0_64 &&
@@ -45,16 +44,22 @@ void irq_handle(uint8_t interrupt, uint64_t esr, uint64_t elr, uint64_t sp) {
 	if(ec == IRQ_ESR_EC_SVC_64)
 	{
 		uint16_t svc_code = esr & IRQ_ISS_SVC_BITMASK;
+		struct task *curr = get_current_task(); // who made the syscall
+		sp = read_pa((uint64_t *) curr -> cpu_context.pgd, sp);
 		switch(svc_code)
 		{
 			case SYS_PRINT:
-				uint64_t *msg = (uint64_t *) sp + IRQ_X0;
-				__printf((char *) *msg);
+				uint64_t msg_va_addr = *(uint64_t *) (sp + IRQ_X0);
+				uint64_t msg_pa_addr = read_pa((uint64_t *) curr -> cpu_context.pgd, msg_va_addr);
+				__printf("so uhm %lx %lx %lx %lx\n", sp, msg_va_addr, msg_pa_addr, *(uint64_t *) msg_pa_addr);
+				__printf((char *) msg_pa_addr);
 				break;
 			case SYS_MALLOC:
-				struct task *curr = get_current_task();
-				uint64_t addr = allocate_section((uint64_t *) (curr -> cpu_context.pgd));
-				*((uint64_t *) sp + IRQ_X0) = addr;
+				// uint64_t addr = allocate_section((uint64_t *) (curr -> cpu_context.pgd));
+				// *((uint64_t *) (sp + IRQ_X0)) = addr;
+				break;
+			case SYS_EXIT:
+				curr -> state = DONE;
 				break;
 			default:
 				__printf("Unknown syscall %d\n", svc_code);

@@ -24,7 +24,6 @@ void timer_irq_enable()
 
 void timer_irq_handle()
 {
-	//printf("Interrupt EL %d %d\n\r", get_exception_level(), get_stack_pointer_level());
 	tick(); // first find next process then reset the timer and return
 	
 	timer_init();

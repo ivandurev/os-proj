@@ -1,6 +1,7 @@
 #include "schedule/scheduler.h"
 #include "schedule/task.h"
 #include "mem/mem.h"
+#include "mem/mem_values.h"
 #include "utils/printf.h"
 
 struct task *tasks[100]; // all tasks
@@ -12,34 +13,35 @@ struct task* get_current_task()
 	return curr;
 }
 
-void init_task(struct task *t) // must be done before any scheduling happens
-{
-	curr = t;
-	queue_task(t);
-}
 
 void schedule()
 {
-	preempt_disable(curr);
+	__printf("Schedule time\n");
+	
 	int16_t maxp = -1;
 	int16_t next = -1;
-	maxp = curr -> priority;
+	if(curr)
+	{
+		preempt_disable(curr);
+		maxp = curr -> priority;
+	}
 
-	if(curr -> state == DONE)
+	if(curr && curr -> state == DONE)
 	{
 		bool found = false;
 		for(int i = 0; i < tasks_len-1; i ++)
 		{
 			if(tasks[i] == curr)
 			{
-				found = true;
 				free_task(curr);
+				found = true;
 			}
 			if(found)
 				tasks[i] = tasks[i+1];
 		}
 		tasks_len --;
 		maxp = -1;
+		curr = NULL;
 	}
 
 	for (int i = 0; i < tasks_len; i ++)
@@ -54,16 +56,16 @@ void schedule()
 
 	if (next >= 0)
 	{
+		__printf("chose %d\n", next);
 		preempt_disable(tasks[next]);
 		switch_to(tasks[next]);
 		struct task *old = curr;
 		curr = tasks[next];
-		if(old -> state == DONE)
-			free_task(old);
-		else
+		if(old)
 			preempt_enable(old);
 	}
-	preempt_enable(curr);
+
+	preempt_enable(curr);	
 }
 
 void queue_task(struct task *t)
@@ -73,20 +75,23 @@ void queue_task(struct task *t)
 
 void tick()
 {
-	if(!(curr -> preempt_block))
+	if(!curr || !(curr -> preempt_block))
 		schedule();
 }
 
 void switch_to(struct task *to)
 {
-	__asm__("mrs %0, sp_el0" : "=r" (curr -> cpu_context.sp));
-	__asm__("mrs %0, elr_el1" : "=r" (curr -> cpu_context.pc));
-	__asm__("mrs %0, spsr_el1" : "=r" (curr -> cpu_context.el));
+	if (curr)
+	{
+		__asm__("mrs %0, sp_el0" : "=r" (curr -> cpu_context.sp));
+		__asm__("mrs %0, elr_el1" : "=r" (curr -> cpu_context.pc));
+		__asm__("mrs %0, spsr_el1" : "=r" (curr -> cpu_context.el));
+	}
 
 	uint64_t volatile register tosp = to -> cpu_context.sp;
 	uint64_t volatile register topc = to -> cpu_context.pc;
-	uint64_t volatile register toel = to -> cpu_context.el;
-	uint64_t volatile register topgd = to -> cpu_context.pgd;
+	uint64_t volatile register toel = to -> cpu_context.el | SPSR_VALUE_NO_EL;
+	uint64_t volatile register topgd = to -> cpu_context.pgd ^ DESCRIPTOR_KERNEL_BITMASK;
 	
 	__asm__("msr sp_el0, %0" : : "r" (tosp));
 	__asm__("msr elr_el1, %0" : : "r" (topc));
@@ -95,13 +100,13 @@ void switch_to(struct task *to)
 	__asm__("msr ttbr0_el1, %0" : : "r" (topgd));
 	__asm__("tlbi vmalle1is");
   	__asm__("dsb ish");
-	__asm__("isb");
-}
-
-void on_return()
-{
-	curr -> state = DONE;
-	while(1) {}
+	__asm__("isb");	
+	__printf("SP: %lx, PC: %lx\n", tosp, topc);
+	__printf("TTBR0: %lx\n", topgd);
+	__printf("PUD ADDR: %lx\n", *(uint64_t *)(topgd | DESCRIPTOR_KERNEL_BITMASK));
+	__printf("PMD ADDR: %lx\n", *(uint64_t *)((*(uint64_t *)(topgd | DESCRIPTOR_KERNEL_BITMASK) & DESCRIPTOR_ADDR_BITMASK) | DESCRIPTOR_KERNEL_BITMASK));
+	__printf("Entry 1: %lx\n",  *(uint64_t *)((((*(uint64_t *)((*(uint64_t *)(topgd | DESCRIPTOR_KERNEL_BITMASK) & DESCRIPTOR_ADDR_BITMASK) | DESCRIPTOR_KERNEL_BITMASK)) & DESCRIPTOR_ADDR_BITMASK) | DESCRIPTOR_KERNEL_BITMASK) + 8));
+	__printf("Entry 0: %lx\n",  *(uint64_t *)((((*(uint64_t *)((*(uint64_t *)(topgd | DESCRIPTOR_KERNEL_BITMASK) & DESCRIPTOR_ADDR_BITMASK) | DESCRIPTOR_KERNEL_BITMASK)) & DESCRIPTOR_ADDR_BITMASK) | DESCRIPTOR_KERNEL_BITMASK)));
 }
 
 struct task* fork(void *to, uint32_t argc, uint64_t *argv);

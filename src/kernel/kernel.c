@@ -80,24 +80,27 @@ void kernel_main()
     // timer_init();
     // timer_irq_enable();
 
-    irq_init();
-    irq_enable(); // end of code in this function - now everything is managed through the scheduler
-    __printf("Interrupts enabled\n");
 
-    printf("System calls working\n");
-
-    __printf("%x %x", &PROC_DEF_BEGIN, &PROC_DEF_END);
-    struct task *idle_task = new_task(&idle, 0, NULL);
-    struct task *first_task = new_task(&first_func, 0, NULL);
+    __printf("%x %x\n", &PROC_DEF_BEGIN, &PROC_DEF_END);
+    struct task *idle_task = new_task(&idle, NULL, 0, NULL);
+    struct task *first_task = new_task(&first_func, &on_return, 0, NULL);
     if(!first_task && !idle_task)
-        __printf("ERROR WHEN INITIALISING TASK\n");
-    else
     {
-        init_task(idle_task);
-        queue_task(first_task);
+        __printf("ERROR WHEN INITIALISING TASK\n");
+        while(1) {}
     }
+
+    queue_task(idle_task);
+    queue_task(first_task);
+
+    // initialise scheduling based on the timer and interrupts
     timer_init();
     timer_irq_enable();
+
+    irq_init();
+    irq_enable();
+    // end of code in this function - now everything is managed through the scheduler
+    
 
     // NO STACK AFTER THIS POINT SINCE IT IS NOW USED BY INTERRUPTS
     // TO CONTINUE USING THE KERNEL ADD AN INIT TASK TO THE QUEUE

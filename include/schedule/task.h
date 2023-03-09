@@ -31,7 +31,7 @@ struct task
 	uint64_t stack_end; // the address at which the stack is full
 };
 
-struct task* new_task(void *start_addr, uint32_t argc, uint64_t *argv); // creates the idle task
+struct task* new_task(void *start_addr, void *return_to, uint32_t argc, uint64_t *argv); // creates the idle task
 void free_task(struct task *t);
 
 void preempt_enable(struct task *t);

@@ -8,3 +8,7 @@ uint64_t malloc()
 {
 	__asm__("svc %0" : : "i" (SYS_MALLOC));
 }
+void exit()
+{
+	__asm__("svc %0" : : "i" (SYS_EXIT));
+}

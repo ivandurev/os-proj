@@ -1,22 +1,38 @@
 SECTIONS
 {
     . = 0xffff000000080000;     /* base address for MMU virtual memory kernel space */ 
-    .text :
+    .text.boot :
     {
         KEEP(*(.text.boot))
-        *(.text .text.* .gnu.linkonce.t*)
     }
     . = ALIGN(8);
+
+    /* user programs stored in ram */
     PROC_DEF_BEGIN = .;
     .text.user :
     {
         build/user* (.text)
     }
-    .rodata.user : { build/user* (.rodata) }
-    .data.user : { build/user* (.data) }
-    .bss.user : { build/user* (.bss) }
+    .rodata.user :
+    {
+        build/user* (.rodata)
+    }
+    .data.user :
+    {
+        build/user* (.data)
+    }
+    .bss.user :
+    {
+        build/user* (.bss)
+    }
     PROC_DEF_END = .;
+    /* end of user code */
     
+    /* Kernel code */
+    .text :
+    {
+        *(.text .text.* .gnu.linkonce.t*)
+    }
     .rodata :
     {
         *(.rodata .rodata.* .gnu.linkonce.r*)
@@ -34,12 +50,17 @@ SECTIONS
         *(COMMON)
         __bss_end = .;
     }
+    /* end of kernel code */
+
+    /* kernel pages */
     . = ALIGN(4096); /* pages are 4kb aligned */
     __pages_start = .;
     .data.pages :
     { 
         . += (3 * (1 << 12));
     }
+    /* end of kernel pages */
+
     _end = .;
 
    /DISCARD/ : { *(.comment) *(.gnu*) *(.note*) *(.eh_frame*) }

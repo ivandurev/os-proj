@@ -53,8 +53,7 @@ cpu_setup:
 c_setup:
     // set up stack
     ldr x0, =KERNEL_MEMORY_BASE // stack goes from start up (start is 0x80000 offset from virtual start for kernel)
-    mov x1, #(1 << 28)
-    add x0, x0, x1
+    add x0, x0, #KERNEL_STACK_SIZE
     mov sp, x0 // el0 stack - temporarily - will be dynamically assigned after kernel is done
 
     // set up global uninitialised variables for C (must be 0)
