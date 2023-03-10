@@ -82,7 +82,8 @@ void kernel_main()
 
     struct task *idle_task = new_task(&idle, NULL, 0, NULL);
     struct task *first_task = new_task(&first_func, &on_return, 0, NULL);
-    if(!first_task && !idle_task)
+    struct task *second_task = new_task(&second_func, &on_return, 0, NULL);
+    if(!first_task || !idle_task || !second_task)
     {
         __printf("ERROR WHEN INITIALISING TASK\n");
         while(1) {}
@@ -90,6 +91,7 @@ void kernel_main()
 
     queue_task(idle_task);
     queue_task(first_task);
+    queue_task(second_task);
 
     // initialise scheduling based on the timer and interrupts
     timer_init();

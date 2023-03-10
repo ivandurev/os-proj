@@ -5,7 +5,6 @@ void idle()
 	while(1) {}
 }
 
-char msg[] = "hello\n";
 // gets called automatically when a program exits
 void on_return()
 {
@@ -17,7 +16,13 @@ void first_func()
 {
 	while(1)
 	{
-		printf(msg);
 		printf("123 Hello!\n");
+	}
+}
+void second_func()
+{
+	while(1)
+	{
+		printf("\t\t\t456\n");
 	}
 }

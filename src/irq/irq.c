@@ -61,10 +61,9 @@ void irq_handle(uint8_t interrupt, uint64_t esr, uint64_t elr, uint64_t sp) {
 			default:
 				__printf("Unknown syscall %d\n", svc_code);
 		}
-		return;
 	}
 
-	// if not check IRQ controller source
+	// also check IRQ controller source
 	uint32_t source = (uint32_t) (*IRQ_PENDING_1);
 	while(source != 0) // handle all interrupts - maybe some occured together or weren't handled in time - will also support nesting
 	{

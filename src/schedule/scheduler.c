@@ -16,7 +16,7 @@ struct task* get_current_task()
 
 void schedule()
 {
-	
+	__printf("--------------------------- SCHEDULING ---------------------------\n");	
 	int16_t maxp = -1;
 	int16_t next = -1;
 	if(curr)
