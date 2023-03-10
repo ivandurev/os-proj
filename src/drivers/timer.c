@@ -25,7 +25,7 @@ void timer_irq_enable()
 void timer_irq_handle()
 {
 	tick(); // first find next process then reset the timer and return
-	
+
 	timer_init();
 	timer_clear();
 }
