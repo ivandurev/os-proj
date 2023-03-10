@@ -5,25 +5,27 @@ SECTIONS
     {
         KEEP(*(.text.boot))
     }
-    . = ALIGN(8);
+    . = ALIGN(4096);
 
     /* user programs stored in ram */
     PROC_DEF_BEGIN = .;
     .text.user :
     {
-        build/user* (.text)
+        build/user* (.text .text.* .gnu.linkonce.t*)
     }
     .rodata.user :
     {
-        build/user* (.rodata)
+        build/user* (.rodata .rodata.* .gnu.linkonce.r*)
     }
     .data.user :
     {
-        build/user* (.data)
+        build/user* (.data .data.* .gnu.linkonce.d*)
     }
     .bss.user :
     {
-        build/user* (.bss)
+        . = ALIGN(16);
+        build/user* (.bss .bss.*)
+        build/user* (COMMON)
     }
     PROC_DEF_END = .;
     /* end of user code */

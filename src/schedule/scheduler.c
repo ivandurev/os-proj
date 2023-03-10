@@ -16,7 +16,6 @@ struct task* get_current_task()
 
 void schedule()
 {
-	__printf("Schedule time\n");
 	
 	int16_t maxp = -1;
 	int16_t next = -1;
@@ -56,7 +55,6 @@ void schedule()
 
 	if (next >= 0)
 	{
-		__printf("chose %d\n", next);
 		preempt_disable(tasks[next]);
 		switch_to(tasks[next]);
 		struct task *old = curr;
@@ -100,13 +98,7 @@ void switch_to(struct task *to)
 	__asm__("msr ttbr0_el1, %0" : : "r" (topgd));
 	__asm__("tlbi vmalle1is");
   	__asm__("dsb ish");
-	__asm__("isb");	
-	__printf("SP: %lx, PC: %lx\n", tosp, topc);
-	__printf("TTBR0: %lx\n", topgd);
-	__printf("PUD ADDR: %lx\n", *(uint64_t *)(topgd | DESCRIPTOR_KERNEL_BITMASK));
-	__printf("PMD ADDR: %lx\n", *(uint64_t *)((*(uint64_t *)(topgd | DESCRIPTOR_KERNEL_BITMASK) & DESCRIPTOR_ADDR_BITMASK) | DESCRIPTOR_KERNEL_BITMASK));
-	__printf("Entry 1: %lx\n",  *(uint64_t *)((((*(uint64_t *)((*(uint64_t *)(topgd | DESCRIPTOR_KERNEL_BITMASK) & DESCRIPTOR_ADDR_BITMASK) | DESCRIPTOR_KERNEL_BITMASK)) & DESCRIPTOR_ADDR_BITMASK) | DESCRIPTOR_KERNEL_BITMASK) + 8));
-	__printf("Entry 0: %lx\n",  *(uint64_t *)((((*(uint64_t *)((*(uint64_t *)(topgd | DESCRIPTOR_KERNEL_BITMASK) & DESCRIPTOR_ADDR_BITMASK) | DESCRIPTOR_KERNEL_BITMASK)) & DESCRIPTOR_ADDR_BITMASK) | DESCRIPTOR_KERNEL_BITMASK)));
+	__asm__("isb");
 }
 
 struct task* fork(void *to, uint32_t argc, uint64_t *argv);

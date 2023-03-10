@@ -80,8 +80,6 @@ void kernel_main()
     // timer_init();
     // timer_irq_enable();
 
-
-    __printf("%x %x\n", &PROC_DEF_BEGIN, &PROC_DEF_END);
     struct task *idle_task = new_task(&idle, NULL, 0, NULL);
     struct task *first_task = new_task(&first_func, &on_return, 0, NULL);
     if(!first_task && !idle_task)
