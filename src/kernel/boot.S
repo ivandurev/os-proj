@@ -83,7 +83,8 @@ mmu_setup:
 
     // PUD table (level 1) is just one and has one entry pointer to a single PMD (level 2)
     add x1, x1, #PAGE_SIZE
-    orr x2, x1, #PUD_DESCRIPTOR_VALID_TABLE
+    ldr x4, =PUD_DESCRIPTOR_VALID_TABLE
+    orr x2, x1, x4
     str x2, [x0]
     add x0, x0, #PAGE_SIZE
 

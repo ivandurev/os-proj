@@ -16,6 +16,7 @@ void on_return()
 void first_func()
 {
 	printf("123 Hello!\n");
+	printf("will return\n");
 }
 void second_func()
 {

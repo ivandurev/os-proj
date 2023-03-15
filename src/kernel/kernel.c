@@ -58,28 +58,6 @@ void kernel_main()
     init_memory();
     __printf("Virtual memory allocator initialised!\n");
 
-        
-    // initialise further tasks to switch to - derived from the idle task
-    // struct task *idle = idle_task();
-    // struct task *_func1 = copy(idle, func1, 0, NULL);
-    // struct task *_func2 = copy(idle, func2, 0, NULL);
-
-    // if(idle && _func1 && _func2)
-    // {
-    //    set_priority(_func1, 1);
-    //    set_priority(_func2, 1);
-    //    drop_to_user(_func2);
-    //    init_task(NULL); // it is fine to overwrite the first few bytes - it will only be done once 
-    //    queue_task(idle);
-    //    queue_task(_func1);
-    //    queue_task(_func2);
-    // }
-    // else
-    //     __printf("Error while initialising init task!\n");
-    
-    // timer_init();
-    // timer_irq_enable();
-
     struct task *idle_task = new_task(&idle, NULL, 0, NULL);
     struct task *first_task = new_task(&first_func, &on_return, 0, NULL);
     struct task *second_task = new_task(&second_func, &on_return, 0, NULL);
@@ -88,6 +66,9 @@ void kernel_main()
         __printf("ERROR WHEN INITIALISING TASK\n");
         while(1) {}
     }
+    
+    set_priority(idle_task, 0);
+    drop_to_user(first_task);
 
     queue_task(idle_task);
     queue_task(first_task);

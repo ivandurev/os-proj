@@ -28,4 +28,6 @@
 #define PMD_DESCRIPTOR_VALID_BLOCK_NORMAL 	(1 << 10 | 1 << 2 | 1 << 0) // PMD level - access flag, mair attribute number, valid block
 #define PMD_DESCRIPTOR_VALID_BLOCK_DEVICE 	(1 << 10 | 0 << 2 | 1 << 0) // PMD level - access flag, mair attribute number, valid block
 
+#define PMD_DESCRIPTOR_AP_EL0RWE			(1 << 6) // allow EL0 to read/write/execute this block - EL1 can't execute
+
 #endif // _M_MEM_VALUES_H

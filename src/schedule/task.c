@@ -41,7 +41,9 @@ struct task* new_task(void *start_addr, void *return_to, uint32_t argc, uint64_t
 		return NULL;
 
 	// copy all user code below the stack - stack + user_code needs to be less than 2MB
-	mcopy((uint64_t *) &PROC_DEF_BEGIN, ((&PROC_DEF_END) - (&PROC_DEF_BEGIN)) >> 3, (uint64_t *) (task_pa + PROC_STACK_SIZE));
+	mcopy((uint64_t *) &PROC_DEF_BEGIN,
+		  ((&PROC_DEF_END) - (&PROC_DEF_BEGIN)) >> 3,
+		  (uint64_t *) (task_pa + PROC_STACK_SIZE));
 
 	// stack imitates an interrupt having happened - registers are saved on top
 	_task -> cpu_context.sp = task_va + PROC_STACK_SIZE - STACK_ALLOC; // stack is going down to beginning of task VA
@@ -54,6 +56,7 @@ struct task* new_task(void *start_addr, void *return_to, uint32_t argc, uint64_t
 
 	// return to the specified parent function
 	*((uint64_t *) (sp_pa + IRQ_LR)) = task_va + ((uint64_t) return_to - (uint64_t) (&PROC_DEF_BEGIN)) + PROC_STACK_SIZE;
+	__printf("Return addr is %lx\n", task_va + ((uint64_t) return_to - (uint64_t) (&PROC_DEF_BEGIN)) + PROC_STACK_SIZE);
 
 	//_idle -> stack_end = (uint64_t) _idle - mid; // this marks the beginning of the task struct and the end of the stack
 
@@ -69,43 +72,10 @@ void free_task(struct task *t)
 void drop_to_user(struct task *t)
 {
 	t -> cpu_context.el = SPSR_M_EL0t;
+	allow_user_access((uint64_t *) t -> cpu_context.pgd);
 }
 
 void set_priority(struct task *t, uint8_t to)
 {
 	t -> priority = to;
-}
-
-struct task* copy(struct task *t, void *to, uint32_t argc, uint64_t *argv)
-{
-	preempt_disable(t);
-
-	struct task *child;
-	child = NULL;//(struct task*) malloc();
-	// if(!child || !t || !to)
-	// 	return NULL;
-	// child = (struct task *) ((uint64_t) child + mid); // leave space for the stack
-
-	// child -> state = READY;
-	// child -> priority = t -> priority;
-	// child -> preempt_block = 0; // enable by default
-
-	// // immitate a interrupt having happened
-	// uint64_t sp = (uint64_t) child; // stack is from here FD
-	// sp -= STACK_ALLOC;
-
-	// for(int i = 0; i < argc && i < 8; i ++)
-	// 	*((uint64_t *) (sp + (8 * i))) = argv[i];
-
-	// *((uint64_t *) (sp + (8*30))) = (uint64_t) on_return;
-
-	// child -> cpu_context.sp = (uint64_t) sp;
-	// child -> cpu_context.pc = (uint64_t) to;
-	// child -> cpu_context.el = t -> cpu_context.el;
-
-	// child -> stack_end = (uint64_t) child - mid; // this marks the beginning of the task struct and the end of the stack
-
-	preempt_enable(t);
-
-	return child;
 }

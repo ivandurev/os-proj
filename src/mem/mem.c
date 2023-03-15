@@ -168,3 +168,18 @@ void mcopy(uint64_t *from_addr, uint32_t size, uint64_t *to_addr)
 		from_addr ++;
 	}
 }
+
+void allow_user_access(uint64_t *pgd_addr)
+{
+	uint64_t *pud_addr = (uint64_t *) (((*pgd_addr) & DESCRIPTOR_ADDR_BITMASK) | DESCRIPTOR_KERNEL_BITMASK);
+	uint64_t *pmd_addr = (uint64_t *) (((*pud_addr) & DESCRIPTOR_ADDR_BITMASK) | DESCRIPTOR_KERNEL_BITMASK);
+
+	// ignoring first entry due to false value
+	for(int i = 1; i < PAGE_ENTRIES; i ++)
+	{
+		if(*(pmd_addr + i) & DESCRIPTOR_VALID_BITMASK)
+		{
+			*(pmd_addr + i) |= PMD_DESCRIPTOR_AP_EL0RWE;
+		}
+	}
+}

@@ -22,12 +22,6 @@
 
 #define HCR_VALUE			HCR_RW_AARCH64
 
-// Secure Configuration Register Values
-#define SCR_RESERVED	    (3 << 4)
-#define SCR_RW_AARCH64		(1 << 10)
-#define SCR_NS_NONSECURE	(1 << 0)
-#define SCR_VALUE	    	(SCR_RESERVED | SCR_RW_AARCH64 | SCR_NS_NONSECURE)
-
 // Saved Program Status Register Values
 #define SPSR_MASK_ALL 		(7 << 6)
 

@@ -18,4 +18,7 @@ void mcopy(uint64_t *from_addr, uint32_t size, uint64_t *to_addr);
 uint64_t read_pa(uint64_t *pgd_addr, uint64_t va);
 extern void mzero(uint64_t start, uint32_t size);
 
+// allows EL0 read/write/execute, disallows EL1 execute
+void allow_user_access(uint64_t *pgd_addr);
+
 #endif // _M_MEM_H

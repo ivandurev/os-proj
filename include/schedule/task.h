@@ -39,6 +39,5 @@ void preempt_disable(struct task *t);
 
 void drop_to_user(struct task *t);
 void set_priority(struct task *t, uint8_t to);
-struct task* copy(struct task *t, void *to, uint32_t argc, uint64_t *argv);
 
 #endif // _SCHED_TASK_H

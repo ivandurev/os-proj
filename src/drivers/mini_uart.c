@@ -77,6 +77,10 @@ void uart_puts(char *s) {
 // wrapper for printf
 void putc (void *p, char c) {
     uart_putc(c);
+
+    // perform carriage return on a newline
+    if(c == '\n')
+        uart_putc('\r');
 }
 
 

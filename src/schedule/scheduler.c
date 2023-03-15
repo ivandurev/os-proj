@@ -101,6 +101,8 @@ void switch_to(struct task *to)
 	__asm__("tlbi vmalle1is");
   	__asm__("dsb ish");
 	__asm__("isb");
+
+	__printf("Going to EL %d at virtual PC %lx and physical PGD at %lx\n", toel, topc, topgd);
 }
 
 struct task* fork(void *to, uint32_t argc, uint64_t *argv);
