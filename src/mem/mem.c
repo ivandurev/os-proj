@@ -125,7 +125,7 @@ bool free_pages(uint64_t *pgd_addr)
 	return true;
 }
 
-uint64_t allocate_section(uint64_t *pgd_addr)
+uint64_t allocate_section(uint64_t *pgd_addr, bool user_access)
 {
 	uint64_t *pud_addr = (uint64_t *) (((*pgd_addr) & DESCRIPTOR_ADDR_BITMASK) | DESCRIPTOR_KERNEL_BITMASK);
 	uint64_t *pmd_addr = (uint64_t *) (((*pud_addr) & DESCRIPTOR_ADDR_BITMASK) | DESCRIPTOR_KERNEL_BITMASK);
@@ -141,6 +141,8 @@ uint64_t allocate_section(uint64_t *pgd_addr)
 
 		descriptor ^= DESCRIPTOR_KERNEL_BITMASK; // remove ffff
 		descriptor |= PMD_DESCRIPTOR_VALID_BLOCK_NORMAL;
+		if(user_access)
+			descriptor |= PMD_DESCRIPTOR_AP_EL0RWE;
 		*(pmd_addr + i) = descriptor;
 
 		return i << VA_PMD_SHIFT;

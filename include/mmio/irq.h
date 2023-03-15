@@ -1,6 +1,8 @@
 #ifndef	_IO_IRQ_H
 #define	_IO_IRQ_H
 
+// Raspberry PI interrupt controller addresses
+
 #include "mmio/base.h"
 
 #define IRQ_PENDING_BASIC	((volatile uint32_t*)(MMIO_BASE+0x0000B200))

@@ -68,8 +68,12 @@ void irq_handle(uint8_t interrupt, uint64_t esr, uint64_t elr, uint64_t sp) {
 				__printf((char *) msg_va_addr);
 				break;
 			case SYS_MALLOC:
-				uint64_t addr = allocate_section((uint64_t *) (curr -> cpu_context.pgd));
+				uint64_t addr = allocate_section((uint64_t *) (curr -> cpu_context.pgd), curr -> cpu_context.el == SPSR_M_EL0t);
 				*((uint64_t *) (sp + IRQ_X0)) = addr;
+				break;
+			case SYS_MFREE:
+				uint64_t va_addr = *(uint64_t *) (sp + IRQ_X0);
+				free_section((uint64_t *) (curr -> cpu_context.pgd), va_addr);
 				break;
 			case SYS_EXIT:
 				curr -> state = DONE;

@@ -1,6 +1,9 @@
 #ifndef _IRQ_INTERRUPTS_H
 #define _IRQ_INTERRUPTS_H
 
+// Values for interrupt handling
+
+// Offsets for different interrupt handlers
 #define SYNC_EL1t		0 
 #define IRQ_EL1t		1 
 #define FIQ_EL1t		2 
@@ -21,8 +24,10 @@
 #define FIQ_EL0_32		14 
 #define ERROR_EL0_32	15 
 
+// Saved register space - on the stack 32*8 bytes each
 #define STACK_ALLOC     256
 
+// offsets for each register from SP
 #define IRQ_X0		(8 * 0)
 #define IRQ_X1		(8 * 1)
 #define IRQ_X2		(8 * 2)

@@ -102,4 +102,3 @@ void switch_to(struct task *to)
 	__asm__("isb");
 }
 
-struct task* fork(void *to, uint32_t argc, uint64_t *argv);

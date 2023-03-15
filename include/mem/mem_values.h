@@ -1,27 +1,29 @@
 #ifndef _M_MEM_VALUES_H
 #define _M_MEM_VALUES_H
 
-#define PAGE_SIZE (1 << 12) // each page is 4KB
-#define PAGES_TOTAL_SIZE (3 * (1 << 12)) // we have one PGD, PUD and one PMD
+// Values related to dynamic memory mapping
 
-#define PAGE_ENTRIES 512 // 4KB pages
+#define PAGE_SIZE 			(1 << 12) // each page is 4KB
+#define PAGES_TOTAL_SIZE 	(3 * (1 << 12)) // we have one PGD, PUD and one PMD
 
-#define SECTION_SIZE (1 << 21)
+#define PAGE_ENTRIES 		512 // 4KB pages
 
-#define PROC_STACK_SIZE 0x8000 // default stack size for user processes - 32KB
+#define SECTION_SIZE 		(1 << 21) // 2MB
 
-#define KERNEL_MEMORY_BASE 0xffff000000000000 // virtual kernel space start
-#define KERNEL_STACK_SIZE 0x80000
-#define DEVICE_OFFSET 0x3f000000 // mmio offset
-#define MEMORY_END_OFFSET (1 << 30) // 1GB
+#define PROC_STACK_SIZE 	0x8000 // default stack size for user processes - 32KB
 
-#define DESCRIPTOR_KERNEL_BITMASK 0xffff000000000000 // use to preserve / remove the kernel memory bits
-#define DESCRIPTOR_ADDR_BITMASK (DESCRIPTOR_KERNEL_BITMASK | ((((uint64_t) 1 << (48 - 12)) - 1) << 12)) // bitmask for address bits
-#define DESCRIPTOR_VALID_BITMASK (1 << 0) // find if an entry is valid
+#define KERNEL_MEMORY_BASE 	0xffff000000000000 // virtual kernel space start
+#define KERNEL_STACK_SIZE	0x80000 // start addreess for kernel boot code - stack is below
+#define DEVICE_OFFSET 		0x3f000000 // mmio offset
+#define MEMORY_END_OFFSET 	(1 << 30) // 1GB
 
-#define VA_PMD_SHIFT 21
-#define VA_PMD_BITMASK (0x1ff << VA_PMD_SHIFT)
-#define VA_SECTION_OFFSET_BITMASK ((1 << VA_PMD_SHIFT) - 1)
+#define DESCRIPTOR_KERNEL_BITMASK 	0xffff000000000000 // use to preserve / remove the kernel memory bits
+#define DESCRIPTOR_ADDR_BITMASK 	(DESCRIPTOR_KERNEL_BITMASK | ((((uint64_t) 1 << (48 - 12)) - 1) << 12)) // bitmask for address bits
+#define DESCRIPTOR_VALID_BITMASK 	(1 << 0) // find if an entry is valid
+
+#define VA_PMD_SHIFT 				21 // PMD offset is 9 bits starting from 21
+#define VA_PMD_BITMASK 				(0x1ff << VA_PMD_SHIFT)
+#define VA_SECTION_OFFSET_BITMASK 	((1 << VA_PMD_SHIFT) - 1) // section offset is the bottom 21 bits
 
 #define PGD_DESCRIPTOR_VALID_TABLE 			(3 << 0) // descriptor flags at PGD LEVEL of va translation
 #define PUD_DESCRIPTOR_VALID_TABLE 		  	(3 << 0) // PUD LEVEL

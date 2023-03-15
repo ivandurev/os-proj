@@ -32,7 +32,7 @@ struct task* new_task(void *start_addr, void *return_to, uint32_t argc, uint64_t
 	if(!(_task -> cpu_context.pgd))
 		return NULL;
 
-	uint64_t task_va = allocate_section((uint64_t *) _task -> cpu_context.pgd);
+	uint64_t task_va = allocate_section((uint64_t *) _task -> cpu_context.pgd, false);
 	if(!task_va)
 		return NULL;
 
@@ -52,11 +52,10 @@ struct task* new_task(void *start_addr, void *return_to, uint32_t argc, uint64_t
 
 	uint64_t sp_pa = task_pa + PROC_STACK_SIZE - STACK_ALLOC;
 	for(int i = 0; i < argc && i < 8; i ++)
-		*((uint64_t *) (sp_pa + (8 * i))) = argv[i];
+		*((uint64_t *) (sp_pa + (8 * i))) = *(argv + i);
 
 	// return to the specified parent function
 	*((uint64_t *) (sp_pa + IRQ_LR)) = task_va + ((uint64_t) return_to - (uint64_t) (&PROC_DEF_BEGIN)) + PROC_STACK_SIZE;
-	__printf("Return addr is %lx\n", task_va + ((uint64_t) return_to - (uint64_t) (&PROC_DEF_BEGIN)) + PROC_STACK_SIZE);
 
 	//_idle -> stack_end = (uint64_t) _idle - mid; // this marks the beginning of the task struct and the end of the stack
 

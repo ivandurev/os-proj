@@ -1,6 +1,8 @@
 #ifndef	_IO_TIMER_H
 #define	_IO_TIMER_H
 
+// Raspberry PI System Timer 
+
 #include "mmio/base.h"
 
 #define TIMER_CS        ((volatile uint32_t*)(MMIO_BASE+0x00003000))

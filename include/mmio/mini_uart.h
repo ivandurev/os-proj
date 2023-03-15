@@ -1,6 +1,8 @@
 #ifndef _MMIO_MINI_UART_H
 #define _MMIO_MINI_UART_H
 
+// Raspberry PI miniUART control and data addresses
+
 #include "mmio/base.h"
 
 #define AUXIRQ			((volatile uint32_t*)(MMIO_BASE+0x00215000))

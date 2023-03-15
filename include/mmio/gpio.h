@@ -1,6 +1,8 @@
 #ifndef _MMIO_GPIO_H
 #define _MMIO_GPIO_H
 
+// Raspberry PI GPIO addresses - used for miniUART
+
 #include "mmio/base.h"
 
 #define GPFSEL0         ((volatile uint32_t*)(MMIO_BASE+0x00200000))

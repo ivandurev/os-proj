@@ -15,10 +15,24 @@ void on_return()
 
 void first_func()
 {
-	printf("123 Hello!\n");
-	printf("will return\n");
+	char *buf = (char *) malloc();
+	if(!buf)
+		printf("Error\n");
+
+	for(int i = 0; i < 10; i ++)
+	{
+		*(buf + i) = ('a' + i);
+	}
+	*(buf + 10) = '\n';
+	printf(buf);
+
+	mfree((uint64_t) buf);
+	printf("Freed the memory\n");
 }
 void second_func()
 {
-	printf("\t\t\t456\n");
+	for(int i = 0; i < 1000; i ++)
+	{
+		printf("\t\t\t456\n");
+	}	
 }

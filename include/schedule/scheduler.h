@@ -1,20 +1,21 @@
 #ifndef _SCHED_SCHEDULER_H
 #define _SCHED_SCHEDULER_H
 
+// Process Scheduler
+
 #include "schedule/task.h"
 
-
+// responsible for assigning next task on a timer tick
 void schedule();
 void tick();
 
-void init_task(struct task *t);
+// add a task to the queue
 void queue_task(struct task *t);
 
+// switch the CPU context to the new task
 void switch_to(struct task *to);
 
-void on_return();
-struct task* fork(void *to, uint32_t argc, uint64_t *argv);
-
+// return the current task
 struct task* get_current_task();
 
 #endif // _SCHED_SCHEDULER_H

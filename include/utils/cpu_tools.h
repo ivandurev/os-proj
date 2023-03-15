@@ -1,6 +1,8 @@
 #ifndef _U_CPU_TOOLS
 #define _U_CPU_TOOLS
 
+// Utilities for accessing CPU information
+
 extern uint64_t get_exception_level();
 extern uint64_t get_stack_pointer_level();
 extern uint64_t get_pc();
