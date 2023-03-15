@@ -48,7 +48,7 @@ void kernel_main()
     uart_irq_enable();
 
     init_printf(0, putc);
-    __printf("Booted to C and uart configured!\n");
+    __printf("\n\nBooted to C and uart configured!\n");
 
     int el = get_exception_level();
     int sp = get_stack_pointer_level();

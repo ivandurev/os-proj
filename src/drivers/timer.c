@@ -6,7 +6,7 @@
 #include "schedule/scheduler.h"
 #include "irq/irq.h"
 
-const uint32_t interval = 50000;
+const uint32_t interval = 100000;
 
 void timer_init()
 {

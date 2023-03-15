@@ -16,7 +16,6 @@ struct task* get_current_task()
 
 void schedule()
 {
-	__printf("--------------------------- SCHEDULING ---------------------------\n");	
 	int16_t maxp = -1;
 	int16_t next = -1;
 	if(curr)
@@ -101,8 +100,6 @@ void switch_to(struct task *to)
 	__asm__("tlbi vmalle1is");
   	__asm__("dsb ish");
 	__asm__("isb");
-
-	__printf("Going to EL %d at virtual PC %lx and physical PGD at %lx\n", toel, topc, topgd);
 }
 
 struct task* fork(void *to, uint32_t argc, uint64_t *argv);
