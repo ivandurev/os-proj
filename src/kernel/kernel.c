@@ -48,31 +48,43 @@ void kernel_main()
     uart_irq_enable();
 
     init_printf(0, putc);
+#ifdef DEBUG
     __printf("\n\nBooted to C and uart configured!\n");
 
     int el = get_exception_level();
     int sp = get_stack_pointer_level();
 
     __printf("Exception level %d %d\n", el, sp);
+#endif
 
     init_memory();
+#ifdef DEBUG
     __printf("Virtual memory allocator initialised!\n");
+#endif
 
     struct task *idle_task = new_task(&idle, NULL, 0, NULL);
     struct task *first_task = new_task(&first_func, &on_return, 0, NULL);
     struct task *second_task = new_task(&second_func, &on_return, 0, NULL);
-    if(!first_task || !idle_task || !second_task)
+    struct task *third_task = new_task(&third_func, &on_return, 0, NULL);
+    if(!first_task || !idle_task || !second_task || !third_task)
     {
-        __printf("ERROR WHEN INITIALISING TASK\n");
+        __printf("ERROR WHEN INITIALISING TASKS\n");
         while(1) {}
     }
     
     set_priority(idle_task, 0);
+    set_priority(first_task, 1);
+    set_priority(second_task, 2);
+    set_priority(third_task, 3);
+    
+
     drop_to_user(first_task);
+    drop_to_user(third_task);
 
     queue_task(idle_task);
     queue_task(first_task);
     queue_task(second_task);
+    queue_task(third_task);
 
     // initialise scheduling based on the timer and interrupts
     timer_init();

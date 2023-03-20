@@ -10,5 +10,6 @@ void on_return();
 // some user functions
 void first_func();
 void second_func();
+void third_func();
 
 #endif // _USER_BASE_H

@@ -31,7 +31,8 @@ struct task
 {
 	struct cpu_context cpu_context;
 	enum states state;
-	uint8_t priority; // 0 is reserved for the idle task
+	uint8_t priority; // priority for current schedule tick - goes from global_priority to 0
+	uint8_t global_priority; // constant priority level (proportional) (0 is reserved for the idle task)
 	uint8_t preempt_block; // how many methods are disabling preemption
 	uint64_t stack_end; // the address at which the stack is full
 };

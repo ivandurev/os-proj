@@ -25,6 +25,7 @@ struct task* new_task(void *start_addr, void *return_to, uint32_t argc, uint64_t
 
 	_task -> state = READY;
 	_task -> priority = 1;
+	_task -> global_priority = 1;
 	_task -> preempt_block = 0;
 
 	// immitate a interrupt having happened
@@ -77,4 +78,5 @@ void drop_to_user(struct task *t)
 void set_priority(struct task *t, uint8_t to)
 {
 	t -> priority = to;
+	t -> global_priority = to;
 }

@@ -28,11 +28,24 @@ void first_func()
 
 	mfree((uint64_t) buf);
 	printf("Freed the memory\n");
+
+	for(int i = 0; i < 1000; i ++)
+	{
+		printf("123\n");
+	}
 }
 void second_func()
 {
 	for(int i = 0; i < 1000; i ++)
 	{
 		printf("\t\t\t456\n");
+	}	
+}
+
+void third_func()
+{
+	for(int i = 0; i < 1000; i ++)
+	{
+		printf("\t\t\t\t\t\t789\n");
 	}	
 }

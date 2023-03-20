@@ -4,9 +4,13 @@
 #include "mem/mem_values.h"
 #include "utils/printf.h"
 
-struct task *tasks[100]; // all tasks
+struct task *tasks[100]; // all tasks - assumes idx 0 is the idle task - special cases apply
 uint8_t tasks_len = 0;
 struct task *curr = NULL; // current running task
+
+#ifdef DEBUG
+int __stats[100]; // number of executions
+#endif
 
 struct task* get_current_task()
 {
@@ -42,22 +46,53 @@ void schedule()
 		curr = NULL;
 	}
 
+#ifdef DEBUG
+	__printf("Stats: ");
+#endif
 	for (int i = 0; i < tasks_len; i ++)
 	{
-		//printf("Task %d - state %d, priority %d, PC %d, SP %d, EL %d\n", i, tasks[i] -> state, tasks[i] -> priority, tasks[i] -> cpu_context.pc, tasks[i] -> cpu_context.sp, tasks[i] -> cpu_context.el);
-		if(tasks[i] -> state == READY && tasks[i] -> priority >= maxp && curr != tasks[i])
+#ifdef DEBUG
+		__printf("%d times, ", __stats[i]);
+#endif
+		if (tasks[i] -> state == READY && tasks[i] -> priority >= maxp && curr != tasks[i])
 		{
 			maxp = tasks[i] -> priority;
 			next = i;
+		}
+	}
+#ifdef DEBUG
+	__printf("\n");
+#endif
+	if (maxp == 0 && tasks_len > 1)
+	{
+		next = -1;
+		for (int i = 1; i < tasks_len; i ++)
+		{
+			if (tasks[i] -> state == READY)
+			{
+				tasks[i] -> priority = tasks[i] -> global_priority;
+				if (tasks[i] -> priority >= maxp && curr != tasks[i])
+				{
+					maxp = tasks[i] -> priority;
+					next = i;
+				}
+			}
 		}
 	}
 
 	if (next >= 0)
 	{
 		preempt_disable(tasks[next]);
+		if (tasks[next] -> priority)
+			tasks[next] -> priority --; // next time execute something else
 		switch_to(tasks[next]);
 		struct task *old = curr;
 		curr = tasks[next];
+
+#ifdef DEBUG
+		__stats[next] ++;
+#endif
+
 		if(old)
 			preempt_enable(old);
 	}
