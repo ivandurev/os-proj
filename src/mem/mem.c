@@ -4,15 +4,18 @@
 
 static bool allocated_section[PAGE_ENTRIES]; // makes up for 1gb of 2mb sections
 static bool allocated_page[PAGE_ENTRIES]; // one 2MB section will be split in 4kB segments
-uint64_t data_start_addr;
+uint64_t data_start_addr; // the calculated start of "free" space is here - anything before is occupied by kernel code
+
+// Note that it is expected VM pages are exactly three - 1 for each level
 
 void init_memory()
 {
 	// align to 4096 increments
 	data_start_addr = ((((uint64_t) (&__KERNEL_END)) >> 21) + 1) << 21;
-	allocated_section[0] = true; // for the 4kB pages
+	allocated_section[0] = true; // reserved for 4kB pages
 }
 
+// return a kernel address for a 4KB page
 uint64_t allocate_physical_page()
 {
 	for(int i = 0; i < PAGE_ENTRIES; i ++)
@@ -20,6 +23,8 @@ uint64_t allocate_physical_page()
 		if(!allocated_page[i])
 		{
 			allocated_page[i] = true;
+
+			// offset page from kernel end of code
 			uint64_t pa = data_start_addr + i * PAGE_SIZE;
 
 			if((pa ^ DESCRIPTOR_KERNEL_BITMASK) >= MEMORY_END_OFFSET / 2)
@@ -44,6 +49,7 @@ bool free_physical_page(uint64_t addr)
 	return false;
 }
 
+// same as for the page but allocating 2MB sections, ignoring the 1st one
 uint64_t allocate_physical_section()
 {
 	for(int i = 1; i < PAGE_ENTRIES; i ++)
@@ -73,6 +79,7 @@ bool free_physical_section(uint64_t addr)
 	return false;
 }
 
+// converts a VA to a kernel PA for a given set of tables
 uint64_t read_pa(uint64_t *pgd_addr, uint64_t va)
 {
 	uint64_t *pud_addr = (uint64_t *) (((*pgd_addr) & DESCRIPTOR_ADDR_BITMASK) | DESCRIPTOR_KERNEL_BITMASK);
@@ -87,6 +94,7 @@ uint64_t read_pa(uint64_t *pgd_addr, uint64_t va)
 	return pa | DESCRIPTOR_KERNEL_BITMASK;
 }
 
+// create the 3 pages for mapping memory - no entries are mapped
 uint64_t allocate_pages()
 {
 	// storing the pages for the new memory space
@@ -125,12 +133,13 @@ bool free_pages(uint64_t *pgd_addr)
 	return true;
 }
 
+// add an entry to a set of pages for EL1/El0
 uint64_t allocate_section(uint64_t *pgd_addr, bool user_access)
 {
 	uint64_t *pud_addr = (uint64_t *) (((*pgd_addr) & DESCRIPTOR_ADDR_BITMASK) | DESCRIPTOR_KERNEL_BITMASK);
 	uint64_t *pmd_addr = (uint64_t *) (((*pud_addr) & DESCRIPTOR_ADDR_BITMASK) | DESCRIPTOR_KERNEL_BITMASK);
 
-	// ignoring first entry due to false value
+	// ignoring first entry due to reserved false value
 	for(int i = 1; i < PAGE_ENTRIES; i ++)
 	{
 		if(*(pmd_addr + i) & DESCRIPTOR_VALID_BITMASK)
@@ -141,10 +150,15 @@ uint64_t allocate_section(uint64_t *pgd_addr, bool user_access)
 
 		descriptor ^= DESCRIPTOR_KERNEL_BITMASK; // remove ffff
 		descriptor |= PMD_DESCRIPTOR_VALID_BLOCK_NORMAL;
+
+		// if user code is to be located here we need to allow access
 		if(user_access)
 			descriptor |= PMD_DESCRIPTOR_AP_EL0RWE;
+
+		// save the entry
 		*(pmd_addr + i) = descriptor;
 
+		// return the virtual address
 		return i << VA_PMD_SHIFT;
 	}
 	return false;
@@ -171,6 +185,7 @@ void mcopy(uint64_t *from_addr, uint32_t size, uint64_t *to_addr)
 	}
 }
 
+// allow user access for all of a mapping defined by a set of pages
 void allow_user_access(uint64_t *pgd_addr)
 {
 	uint64_t *pud_addr = (uint64_t *) (((*pgd_addr) & DESCRIPTOR_ADDR_BITMASK) | DESCRIPTOR_KERNEL_BITMASK);

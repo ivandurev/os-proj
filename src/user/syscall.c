@@ -1,5 +1,7 @@
 #include "user/syscall.h"
 
+// All functions are wrappers for the system calls defining their parameters and return values
+
 void printf(char *msg)
 {
 	__asm__("svc %0" : : "i" (SYS_PRINT));

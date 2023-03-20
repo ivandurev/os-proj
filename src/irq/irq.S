@@ -1,6 +1,6 @@
 .global irq_init
 irq_init:
-	adr	x0, irq_handlers
+	adr	x0, irq_handlers // address of aligned interrupt handlers
 	msr	vbar_el1, x0
 	ret
 

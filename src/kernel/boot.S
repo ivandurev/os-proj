@@ -2,6 +2,8 @@
 #include "cpu_values/mmu.h"
 #include "mem/mem_values.h"
 
+// main boot code
+
 .section ".text.boot"
 
 .global _start
@@ -17,7 +19,7 @@ halt:
     wfe
     b halt
 
-// various CPU settings
+// various CPU register settings
 cpu_setup:
 
     // System Control Register 
@@ -54,7 +56,7 @@ c_setup:
     // set up stack
     ldr x0, =KERNEL_MEMORY_BASE // stack goes from start up (start is 0x80000 offset from virtual start for kernel)
     add x0, x0, #KERNEL_STACK_SIZE
-    mov sp, x0 // el0 stack - temporarily - will be dynamically assigned after kernel is done
+    mov sp, x0 // el0 stack - is used temporarily - will be dynamically assigned after kernel is done
 
     // set up global uninitialised variables for C (must be 0)
     ldr w1, =__bss_size
@@ -131,13 +133,10 @@ mmu_setup:
     // load the address of the c function before enabling mmu
     ldr x6, =kernel_main
 
-    // invalidate caches and synchronise
-    // tlbi alle1
-    // dsb sy
-
     // enable MMU
     mrs x0, sctlr_el1
     orr x0, x0, #SCTLR_MMU_ENABLED    
     msr sctlr_el1, x0
     
-    br x6
+    // go to C from here on
+    br x6 

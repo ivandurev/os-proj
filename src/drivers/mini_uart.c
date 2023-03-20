@@ -3,9 +3,7 @@
 #include "mmio/gpio.h"
 #include "mmio/irq.h"
 
-/**
- * Set baud rate and characteristics (115200 8N1) and map to GPIO
- */
+// Initialise the uart device
 void uart_init()
 {
     register uint32_t r;
@@ -15,7 +13,7 @@ void uart_init()
     r |= ((2<<12) | (2<<15)); // enter function 5 for miniuart
     *GPFSEL1 = r;
 
-    // procedure for removing pull-up / down values of the pins
+    // removing pull-up / down values of the pins - described in the BCM2835 manual
     *GPPUD = 0;
     r = 150;
     while(r --)
@@ -37,37 +35,37 @@ void uart_init()
     *AUX_MU_CNTL = 3;      // enable Tx, Rx
 }
 
-/**
- * Send a character
- */
+// send a single character
 void uart_putc(char c) {
-    /* wait until we can send */
+    // wait until it can be sent
     do
         asm volatile("nop");
     while(!(*AUX_MU_LSR& (1 << 5)));
-    /* write the character to the buffer */
+
+    // write
     *AUX_MU_IO = c;
 }
 
-/**
- * Receive a character
- */
+// read a single character
 char uart_getc() {
     char r;
-    /* wait until something is in the buffer */
+    // block until the buffer is non-empty
     do
         asm volatile("nop");
     while(!(*AUX_MU_LSR & 1));
-    /* read it and return */
+    
+    // read
     r = (char) (*AUX_MU_IO);
-    /* convert carriage return to newline */
+    
+    // conversion needed for the terminal
     return r == '\r' ? '\n' : r;
 }
 
-// Display a string
+// print a string
 void uart_puts(char *s) {
     while(*s) {
-        /* convert newline to carriage return + newline */
+        
+        // conversion as UART recognises \r
         if(*s == '\n')
             uart_putc('\r');
         uart_putc(*s ++);
@@ -84,19 +82,23 @@ void putc (void *p, char c) {
 }
 
 
-// NEEDS REWRITING USING FIFOs 
+// could be rewritten in the future for FIFOs and write/read interrupt buffers
+
 // this enables all AUX interrupts
 void uart_irq_enable() {
     *AUX_MU_IER = 1;
     *IRQS_ENABLE_1 = IRQ_AUX;
 }
 
+// handle an interrupt from the UART
 void uart_irq_handle() {
     // check if its another AUX device
     if((*(AUXIRQ) & 1) != 1) {
         uart_puts("UNRECOGNISED AUX DATA\n\r");
         return;
     }
+
+    // for now the action is printing what we received
     while(((*AUX_MU_IIR) & 4) == 4) {
         uart_putc(uart_getc());
     }

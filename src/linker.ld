@@ -64,6 +64,7 @@ SECTIONS
     /* end of kernel pages */
 
     _end = .;
+    /* allocatable memory starts here */
 
    /DISCARD/ : { *(.comment) *(.gnu*) *(.note*) *(.eh_frame*) }
 }

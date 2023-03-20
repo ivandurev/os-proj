@@ -1,10 +1,17 @@
 #include "irq/interrupts.h"
 
+// note the reason this file contains mostly macros is so that it is faster and because the registers need to remain intact
+
+// each interrupt handler needs to be aligned
 .macro irq_entry label
 .align 7
 	b \label
 .endm
 
+// the interrupt table needs to also be aligned
+// the interrupts are defined in this order in ARM
+// it is also reflected in interrupts.h and irq.c
+// each handler is defined below
 .align	11
 .global irq_handlers
 irq_handlers:
@@ -28,7 +35,8 @@ irq_handlers:
 	irq_entry irq_fiq_el0_32
 	irq_entry irq_error_el0_32
 
-
+// macro for saving the CPU state - might include FP and SIMD registers
+// saved on the El0 stack - El1 is for interrupts and kernel operations
 .macro	irq_save_state
 	msr spsel, #0
 	sub	sp, sp, #STACK_ALLOC
@@ -51,6 +59,7 @@ irq_handlers:
 	msr spsel, #1
 .endm
 
+// restoring the registers from EL0 stack - not guaranteed to be the same ones - the process might have been switched
 .macro	irq_restore_state
 	msr spsel, #0
  	ldp	x0, x1, [sp, #16 * 0]
@@ -73,17 +82,21 @@ irq_handlers:
 	msr spsel, #1
 .endm
 
+// a generic handler which calls a C function with parameters about the interrupt
 .macro irq_generic_handler label
 	irq_save_state
-	mov		x0, #\label
-	mrs		x1, esr_el1
-	mrs 	x2, elr_el1
-	mrs     x3, sp_el0
+	mov		x0, #\label // which interrupt occurred
+	mrs		x1, esr_el1 // exception syndrome register
+	mrs 	x2, elr_el1 // exception link register
+	mrs     x3, sp_el0 // stack pointer of interrupted code
 	bl	 	irq_handle
 	irq_restore_state
 	eret
 .endm
 
+// definitions of the different handlers
+// for now they are all the same and further logic is defined in the C code
+// this is done for simplicity and uniformity but further optimisations might be done by having specific handlers for each
 irq_sync_el1t:
 	irq_generic_handler SYNC_EL1t
 
